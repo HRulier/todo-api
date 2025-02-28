@@ -8,7 +8,7 @@ const Schema = mongoose.Schema;
 
 const TodoSchema = new Schema(
   {
-    desciption: {
+    description: {
       type: String,
       required: true,
     },
@@ -18,6 +18,11 @@ const TodoSchema = new Schema(
     done: {
       type: Boolean,
       default: false,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   {

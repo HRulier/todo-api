@@ -8,6 +8,7 @@ import unknownRoutesHandler from "~/middlewares/unknownRoutes.handler";
 import limiter from "~/middlewares/rateLimiter.handler";
 
 import AuthRoutes from "./auth.routes";
+import TodosRoutes from "./todos.routes";
 
 dotenv.config(dotEnvConfig);
 
@@ -20,7 +21,9 @@ export default function (app: Application) {
   if (process.env.NODE_ENV === "production") {
     apiRoutes.use("/auth", authLimiter);
   }
+
   apiRoutes.use("/auth", AuthRoutes);
+  apiRoutes.use("/todos", TodosRoutes);
 
   // Set url for API group routes
   app.use("/api", apiRoutes);

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
 export interface IAuthentificateRequest extends Request {
   user?: {
@@ -7,10 +7,13 @@ export interface IAuthentificateRequest extends Request {
 }
 
 export interface IAuthController {
-  login: (req: Request, res: Response) => void;
-  register: (req: Request, res: Response, next: NextFunction) => void;
-  forgotPassword: (req: Request, res: Response) => void;
-  resetPassword: (req: Request, res: Response) => void;
-  getProfile: (req: Request, res: Response) => void;
-  updateProfile: (req: IAuthentificateRequest, res: Response) => void;
+  login: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
+  register: (req: Request, res: Response) => Promise<Response>;
+  forgotPassword: (req: Request, res: Response) => Promise<Response>;
+  resetPassword: (req: Request, res: Response) => Promise<Response>;
+  getProfile: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
+  updateProfile: (
+    req: IAuthentificateRequest,
+    res: Response
+  ) => Promise<Response>;
 }

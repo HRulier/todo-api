@@ -1,4 +1,6 @@
-const getUserInfo = async (user: any) => {
+import { IUser } from "~/types/users";
+
+const getUserInfo = async (user: IUser) => {
   return {
     _id: user._id,
     email: user.email,

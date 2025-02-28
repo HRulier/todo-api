@@ -51,12 +51,12 @@ async function login(req: IAuthentificateRequest, res: Response) {
     if (!user) {
       throw new NotFoundError("User not found");
     }
-    const userInfo = await getUserInfo(req.user);
+    const userInfo = await getUserInfo(user);
     return res.status(200).json({
       token: `JWT ${generateToken(userInfo)}`,
       user: userInfo,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log("catch error");
     return handleError(res, req, error);
   }
@@ -96,7 +96,7 @@ async function register(req: Request, res: Response) {
       token: `JWT ${generateToken(infoUser)}`,
       user: infoUser,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(res, req, error);
   }
 }
@@ -134,7 +134,7 @@ async function forgotPassword(req: Request, res: Response) {
       message: "Please check your email for the link to reset your password.",
       resetToken,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(res, req, error);
   }
 }
@@ -161,7 +161,7 @@ async function resetPassword(req: Request, res: Response) {
     await user.save();
 
     return res.status(200).json({ message: "Your password has been changed." });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(res, req, error);
   }
 }
@@ -194,7 +194,7 @@ async function updateProfile(req: IAuthentificateRequest, res: Response) {
     const userInfo = await getUserInfo(user);
 
     return res.status(200).json({ user: userInfo });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(res, req, error);
   }
 }
