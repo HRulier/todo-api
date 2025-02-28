@@ -12,12 +12,9 @@ export interface ITodo extends Document {
 }
 
 export interface ITodoController {
-  getTodos: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
-  getTodoById: (
-    req: IAuthentificateRequest,
-    res: Response
-  ) => Promise<Response>;
-  createTodo: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
-  updateTodo: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
-  deleteTodo: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
+  getTodos: (req: IAuthentificateRequest, res: Response) => void;
+  getTodoById: (req: IAuthentificateRequest, res: Response) => void;
+  createTodo: (req: IAuthentificateRequest, res: Response) => void;
+  updateTodo: (req: IAuthentificateRequest, res: Response) => void;
+  deleteTodo: (req: IAuthentificateRequest, res: Response) => void;
 }
