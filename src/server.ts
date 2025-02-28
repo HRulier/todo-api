@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import logger from "morgan";
 
-import configDotenv from "./config/dot-env";
+import configDotenv from "~/config/dot-env";
+import router from "~/routes";
 
 dotenv.config(configDotenv);
 
@@ -28,5 +29,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
+
+router(app);
 
 export default app;

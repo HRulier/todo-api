@@ -5,7 +5,7 @@ import eslintParserTs from "@typescript-eslint/parser";
 export default [
   {
     ignores: ["dist"],
-    files: ["**/*.ts"], // Appliquer ESLint aux fichiers TypeScript uniquement
+    files: ["**/*.ts", "**/*.tsx"], // Appliquer ESLint aux fichiers TypeScript uniquement
     languageOptions: {
       parser: eslintParserTs,
       sourceType: "module", // Adapter selon "module" ou "CommonJS"
@@ -21,8 +21,8 @@ export default [
         {
           arrays: "always-multiline",
           objects: "always-multiline",
-          imports: "never",
-          exports: "never",
+          imports: "always-multiline",
+          exports: "always-multiline",
           functions: "never",
         },
       ],
@@ -36,7 +36,7 @@ export default [
       ],
       "@typescript-eslint/no-unused-vars": ["error"],
       "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];
