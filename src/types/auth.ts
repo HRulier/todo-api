@@ -7,13 +7,10 @@ export interface IAuthentificateRequest extends Request {
 }
 
 export interface IAuthController {
-  login: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
-  register: (req: Request, res: Response) => Promise<Response>;
-  forgotPassword: (req: Request, res: Response) => Promise<Response>;
-  resetPassword: (req: Request, res: Response) => Promise<Response>;
-  getProfile: (req: IAuthentificateRequest, res: Response) => Promise<Response>;
-  updateProfile: (
-    req: IAuthentificateRequest,
-    res: Response
-  ) => Promise<Response>;
+  login: (req: IAuthentificateRequest, res: Response) => void;
+  register: (req: Request, res: Response) => void;
+  forgotPassword: (req: Request, res: Response) => void;
+  resetPassword: (req: Request, res: Response) => void;
+  getProfile: (req: IAuthentificateRequest, res: Response) => void;
+  updateProfile: (req: IAuthentificateRequest, res: Response) => void;
 }

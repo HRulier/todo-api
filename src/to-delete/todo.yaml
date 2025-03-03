@@ -1,6 +1,6 @@
 components:
   schemas:
-    TodoInput:
+    TodoInputCreate:
       type: object
       required:
         - description
@@ -12,6 +12,21 @@ components:
           type: string
           format: date-time
           description: The due date for the todo item (optional)
+    TodoInputUpdate:
+      type: object
+      required:
+        - description
+      properties:
+        description:
+          type: string
+          description: The text description of the todo item
+        date:
+          type: string
+          format: date-time
+          description: The due date for the todo item (optional)
+        done:
+          type: boolean
+          description: The status of the todo item
     Todo:
       type: object
       properties:
@@ -36,8 +51,3 @@ components:
           type: string
           format: date-time
           description: Last update timestamp
-    CreateTodoResponse:
-      type: object
-      properties:
-        todo:
-          $ref: "#/components/schemas/Todo"
