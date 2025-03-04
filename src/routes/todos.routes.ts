@@ -210,7 +210,7 @@ todosRoutes.put("/:id", requireAuth, TodoController.updateTodo);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Get todo removed
+ *         description: Todo successfully removed
  *         content:
  *           application/json:
  *             schema:

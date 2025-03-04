@@ -94,7 +94,6 @@ async function register(req: Request, res: Response) {
       email: user.email,
     };
     res.status(201).json({
-      token: generateToken(infoUser),
       user: infoUser,
     });
   } catch (error: unknown) {

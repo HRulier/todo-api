@@ -30,10 +30,6 @@ const requireLogin = passport.authenticate("local", {
  *             schema:
  *               type: object
  *               properties:
- *                 token:
- *                   type: string
- *                   description: JWT token for authentication
- *                   example: "eyJhbGciOiJIUzI1NiIs..."
  *                 user:
  *                   type: object
  *                   properties:
