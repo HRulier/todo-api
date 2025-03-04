@@ -1,0 +1,76 @@
+{
+  "UserInputRegister": {
+    "type": "object",
+    "required": ["email", "password", "profile.lastName", "profile.firstName"],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "The user's email address",
+        "example": "user@example.com"
+      },
+      "password": {
+        "type": "string",
+        "format": "email",
+        "description": "Thhe user's password",
+        "example": "strongpassword?123"
+      },
+      "profile": {
+        "type": "object",
+        "description": "The user's profile information",
+        "example": {
+          "lastName": "Doe",
+          "firstName": "John"
+        }
+      }
+    }
+  },
+  "UserInputLogin": {
+    "type": "object",
+    "required": ["email", "password"],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "The user's email address",
+        "example": "user@example.com"
+      },
+      "password": {
+        "type": "string",
+        "format": "email",
+        "description": "Thhe user's password",
+        "example": "strongpassword?123"
+      }
+    }
+  },
+  "User": {
+    "type": "object",
+    "properties": {
+      "_id": {
+        "type": "string",
+        "description": "The user's unique identifier",
+        "example": "65a7cfd49d1b3a001f8f3c5a"
+      },
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "The user's email address",
+        "example": "user@example.com"
+      },
+      "password": {
+        "type": "string",
+        "format": "email",
+        "description": "Thhe user's password",
+        "example": "strongpassword?123"
+      },
+      "profile": {
+        "type": "object",
+        "description": "The user's profile information",
+        "example": {
+          "lastName": "Doe",
+          "firstName": "John"
+        }
+      }
+    }
+  }
+}

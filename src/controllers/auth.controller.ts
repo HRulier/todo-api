@@ -14,6 +14,7 @@ import {
 import { IAuthentificateRequest, IAuthController } from "~/types/auth";
 
 import User from "~/models/user";
+import { IUser } from "~/types/users";
 
 import sendEmail from "~/utils/email";
 import ResetPassword from "~/utils/email/templates/ResetPassword";
@@ -53,7 +54,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
     }
     const userInfo = await getUserInfo(user);
     return res.status(200).json({
-      token: `JWT ${generateToken(userInfo)}`,
+      token: generateToken(userInfo),
       user: userInfo,
     });
   } catch (error: unknown) {
@@ -93,7 +94,6 @@ async function register(req: Request, res: Response) {
       email: user.email,
     };
     res.status(201).json({
-      token: `JWT ${generateToken(infoUser)}`,
       user: infoUser,
     });
   } catch (error: unknown) {
@@ -110,7 +110,7 @@ async function forgotPassword(req: Request, res: Response) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new CustomError("Can't find user for this email", 422);
+      throw new CustomError("Can't find user for this email", 404);
     }
 
     const resetToken = await crypto.randomBytes(32).toString("hex");
@@ -132,7 +132,7 @@ async function forgotPassword(req: Request, res: Response) {
 
     return res.status(200).json({
       message: "Please check your email for the link to reset your password.",
-      resetToken,
+      // resetToken,
     });
   } catch (error: unknown) {
     return handleError(res, req, error);
@@ -148,6 +148,9 @@ async function resetPassword(req: Request, res: Response) {
       resetPasswordExpires: { $gt: Date.now() },
       resetPasswordToken: req.params.token,
     });
+
+    console.log(user, req.params.token, Date.now() > 1741016514505);
+
     if (!user) {
       throw new CustomError(
         "Password reset token is invalid or has expired.",
@@ -168,7 +171,8 @@ async function resetPassword(req: Request, res: Response) {
 
 async function getProfile(req: IAuthentificateRequest, res: Response) {
   if (req.user?._id) {
-    const userInfo = await getUserInfo(req.user);
+    const user = req.user as IUser;
+    const userInfo = await getUserInfo(user);
     return res.status(200).json({ ...userInfo });
   } else {
     return res.status(404).json({

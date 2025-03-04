@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Todo API
+  description: API documentation
+  version: 1.0.0
+  contact:
+    name: Your Name
+    email: your.email@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  # - url: https://api.yourservice.com
+  #   description: Production server
+
+# API tags for grouping endpoints
+tags:
+  - name: Todos
+    description: Todo management operations
+
+# Security schemes
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

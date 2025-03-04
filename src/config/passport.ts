@@ -50,8 +50,7 @@ const localLogin = new LocalStrategy(
 // Setting JWT strategy options
 const jwtOptions: any = {
   jwtFromRequest: ExtractJwt.fromExtractors([
-    ExtractJwt.fromAuthHeaderWithScheme("jwt"),
-    ExtractJwt.fromUrlQueryParameter("token"),
+    ExtractJwt.fromAuthHeaderAsBearerToken(),
   ]),
 };
 

@@ -1,0 +1,12 @@
+{
+  "InternalServerError": {
+    "type": "object",
+    "properties": {
+      "error": {
+        "type": "string",
+        "description": "Internal server error",
+        "example": "InternalError"
+      }
+    }
+  }
+}

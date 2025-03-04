@@ -6,7 +6,6 @@ const getUserInfo = async (user: IUser) => {
     email: user.email,
     role: user.role,
     profile: user.profile,
-    createdAt: user.createdAt,
   };
 };
 
