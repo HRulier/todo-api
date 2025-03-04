@@ -28,20 +28,16 @@ const localLogin = new LocalStrategy(
         });
       }
 
-      user.comparePassword(password, (err: any, isMatch: boolean) => {
-        if (err) {
-          return done(err);
-        }
-        if (!isMatch) {
-          return done(null, false, {
-            error:
-              "Your login details could not be verified. Please try again.",
-          });
-        }
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return done(null, false, {
+          error: "Your login details could not be verified. Please try again.",
+        });
+      }
 
-        return done(null, user);
-      });
+      return done(null, user);
     } catch (err) {
+      console.log(err);
       return done(err);
     }
   }
@@ -54,7 +50,11 @@ const jwtOptions: any = {
   ]),
 };
 
-if (process.env.JWT_SECRET) jwtOptions.secretOrKey = process.env.JWT_SECRET;
+if (!process.env.JWT_SECRET) {
+  throw new Error("Missing JWT_SECRET environment variable.");
+}
+
+jwtOptions.secretOrKey = process.env.JWT_SECRET;
 
 // Setting up JWT login strategy
 const jwtLogin = new JwtStrategy(

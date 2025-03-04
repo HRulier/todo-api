@@ -14,8 +14,5 @@ export interface IUser extends Document {
   resetPasswordToken: string | null;
   resetPasswordExpires: number;
   createdAt: Date;
-  comparePassword: (
-    password: string,
-    cb: (err: unknown, isMatch: boolean) => void
-  ) => void;
+  comparePassword: (password: string) => Promise<boolean>;
 }

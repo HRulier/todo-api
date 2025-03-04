@@ -1,12 +1,8 @@
 import { Router } from "express";
-import passport from "passport";
 import AuthController from "~/controllers/auth.controller";
+import { requireLogin } from "~/middlewares/auth.handler";
 
 const authRoutes = Router();
-
-const requireLogin = passport.authenticate("local", {
-  session: false,
-});
 
 /**
  * @swagger
@@ -100,6 +96,14 @@ authRoutes.post("/register", AuthController.register);
  *         description: Bad request, missing required field.
  *       401:
  *         description: Unauthorized - user not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Your login details could not be verified. Please try again."
  *       500:
  *         content:
  *           application/json:

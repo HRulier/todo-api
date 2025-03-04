@@ -1,12 +1,8 @@
 import { Router } from "express";
-import passport from "passport";
 import TodoController from "~/controllers/todos.controller";
+import { requireAuth } from "~/middlewares/auth.handler";
 
 const todosRoutes = Router();
-
-const requireAuth = passport.authenticate("jwt", {
-  session: false,
-});
 
 /**
  * @swagger
@@ -41,7 +37,11 @@ const requireAuth = passport.authenticate("jwt", {
  *                   type: string
  *                   example: "The requested todo(s) was not found"
  *       401:
- *         description: Unauthorized - user not authenticated
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RequireAuthError'
  *       500:
  *         content:
  *           application/json:
@@ -86,7 +86,11 @@ todosRoutes.get("/", requireAuth, TodoController.getTodos);
  *                   type: string
  *                   example: "The requested todo(s) was not found"
  *       401:
- *         description: Unauthorized - user not authenticated
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RequireAuthError'
  *       500:
  *         content:
  *           application/json:
@@ -130,7 +134,11 @@ todosRoutes.get("/:id", requireAuth, TodoController.getTodoById);
  *                   type: string
  *                   example: "Can't create todo : missing field(s)"
  *       401:
- *         description: Unauthorized - user not authenticated
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RequireAuthError'
  *       500:
  *         content:
  *           application/json:
@@ -181,7 +189,11 @@ todosRoutes.post("/", requireAuth, TodoController.createTodo);
  *                   type: string
  *                   example: "The requested todo(s) was not found"
  *       401:
- *         description: Unauthorized - user not authenticated
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RequireAuthError'
  *       500:
  *         content:
  *           application/json:
@@ -230,7 +242,11 @@ todosRoutes.put("/:id", requireAuth, TodoController.updateTodo);
  *                   type: string
  *                   example: "The requested todo(s) was not found"
  *       401:
- *         description: Unauthorized - user not authenticated
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RequireAuthError'
  *       500:
  *         content:
  *           application/json:

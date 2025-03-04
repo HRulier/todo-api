@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import dotenv from "dotenv";
@@ -19,23 +18,12 @@ import { IUser } from "~/types/users";
 import sendEmail from "~/utils/email";
 import ResetPassword from "~/utils/email/templates/ResetPassword";
 import { getUserInfo } from "~/services/users.services";
+import { generateToken } from "~/utils/jwt";
 
 const ObjectId = mongoose.Types.ObjectId;
 dotenv.config(dotEnvConfig);
 
 const NotFound = new NotFoundError("The requested user was not found");
-
-// Generate JWT
-// TO-DO Add issuer and audience
-function generateToken(user: { _id: string; email: string }) {
-  return jwt.sign(
-    {
-      data: user,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 3, // 3 hours
-    },
-    process.env.JWT_SECRET || ""
-  );
-}
 
 async function login(req: IAuthentificateRequest, res: Response) {
   try {
