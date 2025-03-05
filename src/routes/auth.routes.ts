@@ -90,6 +90,10 @@ authRoutes.post("/register", AuthController.register);
  *                   type: string
  *                   description: JWT token for authentication
  *                   example: "eyJhbGciOiJIUzI1NiIs..."
+ *                 refreshToken:
+ *                   type: string
+ *                   description: Refresh token to use to get a new access token when the current one expires
+ *                   example: "eyJhbGciOiJIUzI1NiIs..."
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       400:
@@ -112,6 +116,119 @@ authRoutes.post("/register", AuthController.register);
  */
 
 authRoutes.post("/login", requireLogin, AuthController.login);
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Obtain a new access token using a refresh token
+ *     description: Use a refresh token to obtain a new access token when user token has expired.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "eyJhbGciOiJIUzI1NiIs..."
+ *     responses:
+ *       200:
+ *         description: Refresh token successful, returns a new JWT token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT token for authentication
+ *                   example: "eyJhbGciOiJIUzI1NiIs..."
+ *       403:
+ *         description: Access denied - missing refresh token or invalid fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               properties:
+ *                 error:
+ *                   type: string
+ *             examples:
+ *               Invalid Refresh Token:
+ *                 value:
+ *                   error: "Invalid Refresh Token"
+ *               Missing refresh token:
+ *                 value:
+ *                   error: "Access denied"
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/InternalServerError'
+ */
+
+authRoutes.post("/refresh-token", AuthController.refresh);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Remove refresh token
+ *     description: Revokes the refresh token to prevent future token renewals
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "eyJhbGciOiJIUzI1NiIs..."
+ *     responses:
+ *       200:
+ *         description: Remove refresh token successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Logout success
+ *                   example: "Logout success"
+ *       403:
+ *         description: Access denied - missing refresh token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Missing refresh token
+ *                   example: "Access denied"
+ *       404:
+ *         description: User not found. The refresh token provided is not associated with any registered user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "The requested user was not found"
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/InternalServerError'
+ */
+
+authRoutes.post("/logout", AuthController.logout);
 
 /**
  * @swagger

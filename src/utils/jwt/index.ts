@@ -1,15 +1,40 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-// Generate JWT
-// TO-DO Add issuer and audience
-function generateToken(user: { _id: string; email: string }): string {
+import configDotenv from "~/config/dot-env";
+
+dotenv.config(configDotenv);
+
+function generateAccessToken(user: { _id: string; email: string }): string {
+  if (!process.env.ACCESS_TOKEN_SECRET) {
+    throw new Error("Missing ACCESS_TOKEN_SECRET environment variable.");
+  }
+
+  if (!process.env.ACCESS_TOKEN_EXPIRES) {
+    throw new Error("Missing ACCESS_TOKEN_EXPIRES environment variable.");
+  }
+
   return jwt.sign(
     {
-      data: user,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 3, // 3 hours
+      data: { id: user._id, email: user.email },
     },
-    process.env.JWT_SECRET || ""
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES as any }
   );
 }
 
-export { generateToken };
+function generateRefreshToken(user: { _id: string; email: string }): string {
+  if (!process.env.REFRESH_TOKEN_SECRET) {
+    throw new Error("Missing REFRESH_TOKEN_SECRET environment variable.");
+  }
+
+  if (!process.env.REFRESH_TOKEN_EXPIRES) {
+    throw new Error("Missing REFRESH_TOKEN_EXPIRES environment variable.");
+  }
+
+  return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRES as any,
+  });
+}
+
+export { generateAccessToken, generateRefreshToken };

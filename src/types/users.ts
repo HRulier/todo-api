@@ -11,6 +11,7 @@ export interface IUser extends Document {
   profile: UserProfile;
   role: string;
   password: string | null;
+  refreshToken: string;
   resetPasswordToken: string | null;
   resetPasswordExpires: number;
   createdAt: Date;

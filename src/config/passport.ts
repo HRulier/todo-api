@@ -50,11 +50,11 @@ const jwtOptions: any = {
   ]),
 };
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("Missing JWT_SECRET environment variable.");
+if (!process.env.ACCESS_TOKEN_SECRET) {
+  throw new Error("Missing ACCESS_TOKEN_SECRET environment variable.");
 }
 
-jwtOptions.secretOrKey = process.env.JWT_SECRET;
+jwtOptions.secretOrKey = process.env.ACCESS_TOKEN_SECRET;
 
 // Setting up JWT login strategy
 const jwtLogin = new JwtStrategy(

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import jwt, { Secret } from "jsonwebtoken";
 import dotEnvConfig from "~/config/dot-env";
 import {
   NotFoundError,
@@ -18,38 +19,12 @@ import { IUser } from "~/types/users";
 import sendEmail from "~/utils/email";
 import ResetPassword from "~/utils/email/templates/ResetPassword";
 import { getUserInfo } from "~/services/users.services";
-import { generateToken } from "~/utils/jwt";
+import { generateAccessToken, generateRefreshToken } from "~/utils/jwt";
 
 const ObjectId = mongoose.Types.ObjectId;
 dotenv.config(dotEnvConfig);
 
 const NotFound = new NotFoundError("The requested user was not found");
-
-async function login(req: IAuthentificateRequest, res: Response) {
-  try {
-    const role = req?.user?.role;
-    if (
-      process.env.NODE_ENV === "production" &&
-      role === "Member" &&
-      req.headers.origin === process.env.URL_ADMIN
-    ) {
-      throw new UnauthorizedError();
-    }
-
-    const user = await User.findById(new ObjectId(req.user?._id));
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
-    const userInfo = await getUserInfo(user);
-    return res.status(200).json({
-      token: generateToken(userInfo),
-      user: userInfo,
-    });
-  } catch (error: unknown) {
-    console.log("catch error");
-    return handleError(res, req, error);
-  }
-}
 
 async function register(req: Request, res: Response) {
   try {
@@ -83,6 +58,91 @@ async function register(req: Request, res: Response) {
     };
     res.status(201).json({
       user: infoUser,
+    });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
+async function login(req: IAuthentificateRequest, res: Response) {
+  try {
+    const role = req?.user?.role;
+    if (
+      process.env.NODE_ENV === "production" &&
+      role === "Member" &&
+      req.headers.origin === process.env.URL_ADMIN
+    ) {
+      throw new UnauthorizedError();
+    }
+
+    const user = await User.findById(new ObjectId(req.user?._id));
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    const userInfo = await getUserInfo(user);
+
+    const accessToken = generateAccessToken(userInfo);
+    const refreshToken = generateRefreshToken(userInfo);
+
+    await user.set({ refreshToken });
+    await user.save();
+
+    return res.status(200).json({
+      token: accessToken,
+      refreshToken,
+      user: userInfo,
+    });
+  } catch (error: unknown) {
+    console.log("catch error");
+    return handleError(res, req, error);
+  }
+}
+
+async function refresh(req: IAuthentificateRequest, res: Response) {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      throw new CustomError("Access denied", 403);
+    }
+
+    const user = await User.findOne({ refreshToken });
+
+    if (!user) {
+      throw new CustomError("Invalid Refresh Token", 403);
+    }
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as Secret);
+
+    const userInfo = await getUserInfo(user);
+    const accessToken = generateAccessToken(userInfo);
+    return res.status(200).json({ token: accessToken });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
+async function logout(req: IAuthentificateRequest, res: Response) {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      throw new CustomError("Access denied", 403);
+    }
+
+    const user = await User.findOne({
+      refreshToken,
+    });
+
+    if (!user) {
+      throw NotFound;
+    }
+
+    await user.set({ refreshToken: null });
+    await user.save();
+
+    return res.status(200).json({
+      message: "Logout success",
     });
   } catch (error: unknown) {
     return handleError(res, req, error);
@@ -192,8 +252,10 @@ async function updateProfile(req: IAuthentificateRequest, res: Response) {
 }
 
 const AuthController: IAuthController = {
-  login,
   register,
+  login,
+  refresh,
+  logout,
   forgotPassword,
   resetPassword,
   getProfile,

@@ -1,8 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import passport from "passport";
 
-import { generateToken } from "~/utils/jwt";
-
 const requireLogin = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate(
     "local",
@@ -16,9 +14,8 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
         return res.status(401).json({ error: info?.error || "Unauthorized" });
       }
 
-      // If authentication is successful, issue a token
-      const token = generateToken(user); // Assume you have a function to generate JWT
-      return res.json({ token, user });
+      req.user = user; // Attach the user to the request for later use
+      next(); // Proceed to the next middleware/controller
     }
   )(req, res, next);
 };
