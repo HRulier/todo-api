@@ -1,6 +1,9 @@
 import { Router } from "express";
 import TodoController from "~/controllers/todos.controller";
 import { requireAuth } from "~/middlewares/auth.handler";
+import { validateRequest } from "~/middlewares/validateRequest.handler";
+import idSchema from "~/schemas/id.schema";
+import { createTodoSchema, updateTodoSchema } from "~/schemas/todo.schema";
 
 const todosRoutes = Router();
 
@@ -98,7 +101,12 @@ todosRoutes.get("/", requireAuth, TodoController.getTodos);
  *               $ref: '#/components/schemas/InternalServerError'
  */
 
-todosRoutes.get("/:id", requireAuth, TodoController.getTodoById);
+todosRoutes.get(
+  "/:id",
+  requireAuth,
+  validateRequest(idSchema, { source: "params" }),
+  TodoController.getTodoById
+);
 
 /**
  * @swagger
@@ -146,7 +154,12 @@ todosRoutes.get("/:id", requireAuth, TodoController.getTodoById);
  *               $ref: '#/components/schemas/InternalServerError'
  */
 
-todosRoutes.post("/", requireAuth, TodoController.createTodo);
+todosRoutes.post(
+  "/",
+  requireAuth,
+  validateRequest(createTodoSchema),
+  TodoController.createTodo
+);
 
 /**
  * @swagger
@@ -201,7 +214,13 @@ todosRoutes.post("/", requireAuth, TodoController.createTodo);
  *               $ref: '#/components/schemas/InternalServerError'
  */
 
-todosRoutes.put("/:id", requireAuth, TodoController.updateTodo);
+todosRoutes.put(
+  "/:id",
+  requireAuth,
+  validateRequest(idSchema, { source: "params" }),
+  validateRequest(updateTodoSchema),
+  TodoController.updateTodo
+);
 
 /**
  * @swagger
@@ -254,6 +273,11 @@ todosRoutes.put("/:id", requireAuth, TodoController.updateTodo);
  *               $ref: '#/components/schemas/InternalServerError'
  */
 
-todosRoutes.delete("/:id", requireAuth, TodoController.deleteTodo);
+todosRoutes.delete(
+  "/:id",
+  requireAuth,
+  validateRequest(idSchema, { source: "params" }),
+  TodoController.deleteTodo
+);
 
 export default todosRoutes;

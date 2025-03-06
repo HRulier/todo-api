@@ -1,6 +1,10 @@
 import { Response } from "express";
-import { NotFoundError, CustomError, handleError } from "~/utils/errors";
-import { ITodo, ITodoController } from "~/types/todo";
+import { NotFoundError, handleError } from "~/utils/errors";
+import {
+  ITodoController,
+  CreateTodoInput,
+  UpdateTodoInput,
+} from "~/types/todo";
 import { IAuthentificateRequest } from "~/types/auth";
 import { IUser } from "~/types/users";
 import Todo from "~/models/todo";
@@ -41,14 +45,10 @@ async function getTodoById(req: IAuthentificateRequest, res: Response) {
 async function createTodo(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
-    const { description, date } = req.body;
-    if (!description) {
-      throw new CustomError("Can't create todo : missing field(s)");
-    }
+    const createData: CreateTodoInput = req.body;
 
     const todo = new Todo({
-      description,
-      date,
+      ...createData,
       user: user._id,
     });
     await todo.save();
@@ -63,27 +63,11 @@ async function updateTodo(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const { id } = req.params;
-    const { description, date, completed } = req.body;
-
-    const updatedProperties: Partial<
-      Pick<ITodo, "description" | "date" | "completed">
-    > = {
-      description,
-      date,
-      completed,
-    };
-
-    // Clean property equel to undefined
-    Object.keys(updatedProperties).forEach((key) => {
-      const typedKey = key as keyof typeof updatedProperties;
-      if (updatedProperties[typedKey] === undefined) {
-        delete updatedProperties[typedKey];
-      }
-    });
+    const updateData: UpdateTodoInput = req.body;
 
     const todo = await Todo.findOneAndUpdate(
       { _id: id, user: user._id },
-      updatedProperties,
+      updateData,
       {
         new: true,
       }
