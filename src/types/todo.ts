@@ -7,7 +7,7 @@ export interface ITodo extends Document {
   _id: string;
   date: Date;
   description: string;
-  done: boolean;
+  completed: boolean;
   user: IUser;
 }
 

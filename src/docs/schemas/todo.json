@@ -27,7 +27,7 @@
         "format": "date-time",
         "description": "The due date for the todo item (optional)"
       },
-      "done": {
+      "completed": {
         "type": "boolean",
         "description": "The status of the todo item"
       }
@@ -53,7 +53,7 @@
         "type": "string",
         "description": "The user ID who owns this todo"
       },
-      "done": {
+      "completed": {
         "type": "boolean",
         "description": "The status of the todo item",
         "example": false

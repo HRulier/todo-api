@@ -63,14 +63,14 @@ async function updateTodo(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const { id } = req.params;
-    const { description, date, done } = req.body;
+    const { description, date, completed } = req.body;
 
     const updatedProperties: Partial<
-      Pick<ITodo, "description" | "date" | "done">
+      Pick<ITodo, "description" | "date" | "completed">
     > = {
       description,
       date,
-      done,
+      completed,
     };
 
     // Clean property equel to undefined
