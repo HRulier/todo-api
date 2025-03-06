@@ -16,7 +16,7 @@ function generateAccessToken(user: { _id: string; email: string }): string {
 
   return jwt.sign(
     {
-      data: { id: user._id, email: user.email },
+      data: { _id: user._id, email: user.email },
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRES as any }
@@ -32,7 +32,7 @@ function generateRefreshToken(user: { _id: string; email: string }): string {
     throw new Error("Missing REFRESH_TOKEN_EXPIRES environment variable.");
   }
 
-  return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
+  return jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRES as any,
   });
 }

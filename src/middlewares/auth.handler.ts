@@ -31,8 +31,6 @@ const requireAuth = (req: Request, res: Response, next: NextFunction) => {
         console.log(`JsonWebTokenError: ${info.message}`);
       }
 
-      console.log(user);
-
       if (!user) {
         return res.status(401).json({
           error: "Invalid or expired token. Please log in again.",
