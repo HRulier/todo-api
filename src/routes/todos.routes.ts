@@ -1,6 +1,9 @@
 import { Router } from "express";
 import TodoController from "~/controllers/todos.controller";
 import { requireAuth } from "~/middlewares/auth.handler";
+import validateRequest from "~/middlewares/validateRequest.handler";
+import idSchema from "~/schemas/id.schema";
+import { createTodoSchema, updateTodoSchema } from "~/schemas/todo.schema";
 
 const todosRoutes = Router();
 
@@ -31,22 +34,27 @@ const todosRoutes = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
 todosRoutes.get("/", requireAuth, TodoController.getTodos);
@@ -80,25 +88,35 @@ todosRoutes.get("/", requireAuth, TodoController.getTodos);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-todosRoutes.get("/:id", requireAuth, TodoController.getTodoById);
+todosRoutes.get(
+  "/:id",
+  requireAuth,
+  validateRequest(idSchema, { source: "params" }),
+  TodoController.getTodoById
+);
 
 /**
  * @swagger
@@ -124,29 +142,41 @@ todosRoutes.get("/:id", requireAuth, TodoController.getTodoById);
  *             schema:
  *               $ref: '#/components/schemas/Todo'
  *       400:
- *         description: Bad request - missing required fields
+ *         description: Bad request - Validation error / missing or invalid fields
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Can't create todo : missing field(s)"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               missingField:
+ *                 $ref: '#/components/schemas/TodoMissingFieldExample'
+ *               invalidField:
+ *                 $ref: '#/components/schemas/TodoInvalidFieldExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-todosRoutes.post("/", requireAuth, TodoController.createTodo);
+todosRoutes.post(
+  "/",
+  requireAuth,
+  validateRequest(createTodoSchema),
+  TodoController.createTodo
+);
 
 /**
  * @swagger
@@ -178,30 +208,50 @@ todosRoutes.post("/", requireAuth, TodoController.createTodo);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Todo'
+ *       400:
+ *         description: Bad request - Validation error / missing or invalid fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               invalidField:
+ *                 $ref: '#/components/schemas/TodoInvalidFieldExample'
  *       404:
  *         description: Error todo(s) not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-todosRoutes.put("/:id", requireAuth, TodoController.updateTodo);
+todosRoutes.put(
+  "/:id",
+  requireAuth,
+  validateRequest(idSchema, { source: "params" }),
+  validateRequest(updateTodoSchema),
+  TodoController.updateTodo
+);
 
 /**
  * @swagger
@@ -236,24 +286,34 @@ todosRoutes.put("/:id", requireAuth, TodoController.updateTodo);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-todosRoutes.delete("/:id", requireAuth, TodoController.deleteTodo);
+todosRoutes.delete(
+  "/:id",
+  requireAuth,
+  validateRequest(idSchema, { source: "params" }),
+  TodoController.deleteTodo
+);
 
 export default todosRoutes;

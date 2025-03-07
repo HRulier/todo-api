@@ -6,7 +6,6 @@ import jwt, { Secret } from "jsonwebtoken";
 import dotEnvConfig from "~/config/dot-env";
 import {
   NotFoundError,
-  UnauthorizedError,
   CustomError,
   BadRequestError,
   handleError,
@@ -31,14 +30,6 @@ async function register(req: Request, res: Response) {
     const email = req.body.email;
     const password = req.body.password;
     const profile = req.body.profile;
-
-    if (!email) {
-      throw new CustomError("You must enter an email address.", 422);
-    }
-
-    if (!password) {
-      throw new CustomError("You must enter a password.", 422);
-    }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -66,15 +57,6 @@ async function register(req: Request, res: Response) {
 
 async function login(req: IAuthentificateRequest, res: Response) {
   try {
-    const role = req?.user?.role;
-    if (
-      process.env.NODE_ENV === "production" &&
-      role === "Member" &&
-      req.headers.origin === process.env.URL_ADMIN
-    ) {
-      throw new UnauthorizedError();
-    }
-
     const user = await User.findById(new ObjectId(req.user?._id));
     if (!user) {
       throw new NotFoundError("User not found");
@@ -125,10 +107,6 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
 async function logout(req: IAuthentificateRequest, res: Response) {
   try {
     const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      throw new CustomError("Access denied", 403);
-    }
 
     const user = await User.findOne({
       refreshToken,
@@ -189,15 +167,10 @@ async function forgotPassword(req: Request, res: Response) {
 
 async function resetPassword(req: Request, res: Response) {
   try {
-    if (!req.body.password) {
-      throw new BadRequestError("Missing field");
-    }
     const user = await User.findOne({
       resetPasswordExpires: { $gt: Date.now() },
       resetPasswordToken: req.params.token,
     });
-
-    console.log(user, req.params.token, Date.now() > 1741016514505);
 
     if (!user) {
       throw new CustomError(

@@ -1,0 +1,18 @@
+{
+  "InternalServerErrExample": {
+    "summary": "Internal server error",
+    "value": {
+      "status": "error",
+      "message": "InternalError",
+      "errors": []
+    }
+  },
+  "RequireAuthErrExample": {
+    "summary": "Invalid or expired token. Please log in again.",
+    "value": {
+      "status": "error",
+      "message": "Invalid or expired token. Please log in again.",
+      "errors": []
+    }
+  }
+}

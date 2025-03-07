@@ -1,0 +1,36 @@
+{
+  "TodoMissingFieldExample": {
+    "summary": "Required field is missing",
+    "value": {
+      "status": "error",
+      "message": "Validation failed",
+      "errors": [
+        {
+          "path": "description",
+          "message": "Required"
+        }
+      ]
+    }
+  },
+  "TodoInvalidFieldExample": {
+    "summary": "Field contains invalid value",
+    "value": {
+      "status": "error",
+      "message": "Validation failed",
+      "errors": [
+        {
+          "path": "date",
+          "message": "Invalid date"
+        }
+      ]
+    }
+  },
+  "TodoINotFoundExample": {
+    "summary": "Error todo(s) not found",
+    "value": {
+      "status": "error",
+      "message": "The requested todo(s) was not found",
+      "errors": []
+    }
+  }
+}

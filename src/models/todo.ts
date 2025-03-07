@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ITodo } from "~/types/todo";
+import { TodoDocument } from "~/types/todo";
 const Schema = mongoose.Schema;
 
 //= ===============================
@@ -14,6 +14,7 @@ const TodoSchema = new Schema(
     },
     date: {
       type: Date,
+      required: true,
     },
     completed: {
       type: Boolean,
@@ -30,4 +31,4 @@ const TodoSchema = new Schema(
   }
 );
 
-export default mongoose.model<ITodo>("Todo", TodoSchema);
+export default mongoose.model<TodoDocument>("Todo", TodoSchema);

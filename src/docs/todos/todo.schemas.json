@@ -1,7 +1,7 @@
 {
   "TodoInputCreate": {
     "type": "object",
-    "required": ["description"],
+    "required": ["description", "date"],
     "properties": {
       "description": {
         "type": "string",

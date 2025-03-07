@@ -61,8 +61,9 @@ export const handleError = (res: Response, req: Request, error: any) => {
   // console.log('InternalError', internatError);
   // console.log(error.statusCode, error.message);
 
-  console.log("handleError");
   return res.status(error.statusCode || 500).json({
-    error: error.message || internatError.message,
+    status: "error",
+    message: error.message || internatError.message,
+    errors: [],
   });
 };

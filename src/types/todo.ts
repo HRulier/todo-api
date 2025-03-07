@@ -1,15 +1,21 @@
 import { Response } from "express";
-import { Document } from "mongoose";
+import mongoose from "mongoose";
+import { z } from "zod";
 import { IUser } from "./users";
 import { IAuthentificateRequest } from "./auth";
+import { createTodoSchema, updateTodoSchema } from "~/schemas/todo.schema";
 
-export interface ITodo extends Document {
-  _id: string;
-  date: Date;
-  description: string;
-  completed: boolean;
+// Types inferred
+export type CreateTodoInput = z.infer<typeof createTodoSchema>;
+export type UpdateTodoInput = z.infer<typeof updateTodoSchema>;
+
+// Extend type for todo document
+export type TodoDocument = CreateTodoInput & {
+  _id: mongoose.Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
   user: IUser;
-}
+};
 
 export interface ITodoController {
   getTodos: (req: IAuthentificateRequest, res: Response) => void;

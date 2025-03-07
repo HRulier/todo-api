@@ -11,7 +11,11 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
       if (err) return next(err); // Pass unexpected errors to Express error handler
 
       if (!user) {
-        return res.status(401).json({ error: info?.error || "Unauthorized" });
+        return res.status(401).json({
+          status: "error",
+          message: info?.error || "Unauthorized",
+          errors: [],
+        });
       }
 
       req.user = user; // Attach the user to the request for later use
@@ -33,7 +37,9 @@ const requireAuth = (req: Request, res: Response, next: NextFunction) => {
 
       if (!user) {
         return res.status(401).json({
-          error: "Invalid or expired token. Please log in again.",
+          status: "error",
+          message: "Invalid or expired token. Please log in again.",
+          errors: [],
         });
       }
 
