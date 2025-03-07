@@ -132,15 +132,17 @@ todosRoutes.get(
  *             schema:
  *               $ref: '#/components/schemas/Todo'
  *       400:
- *         description: Bad request - missing required fields
+ *         description: Bad request - validation errors
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Can't create todo : missing field(s)"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               missingField:
+ *                 $ref: '#/components/schemas/TodoMissingFieldExample'
+ *               invalidField:
+ *                 $ref: '#/components/schemas/TodoInvalidFieldExample'
+
  *       401:
  *         description: Unauthorized
  *         content:
@@ -191,6 +193,15 @@ todosRoutes.post(
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Todo'
+ *       400:
+ *         description: Bad request - validation errors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               invalidField:
+ *                 $ref: '#/components/schemas/TodoInvalidFieldExample'
  *       404:
  *         description: Error todo(s) not found
  *         content:

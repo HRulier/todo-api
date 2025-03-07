@@ -9,7 +9,9 @@ import path from "path";
 //   fs.readFileSync(path.resolve(__dirname, "../docs/schemas/todo.json"), "utf-8")
 // );
 
-import todoSchema from "../docs/schemas/todo.json";
+import schemas from "../docs/index.json";
+import todoSchemas from "../docs/todos";
+
 import userSchema from "../docs/schemas/user.json";
 import errorSchema from "../docs/schemas/error.json";
 
@@ -49,7 +51,8 @@ export const setupSwagger = (app: Express) => {
       ],
       components: {
         schemas: {
-          ...todoSchema,
+          ...schemas,
+          ...todoSchemas,
           ...userSchema,
           ...errorSchema,
         },
