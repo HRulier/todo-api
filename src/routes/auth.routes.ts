@@ -1,6 +1,8 @@
 import { Router } from "express";
 import AuthController from "~/controllers/auth.controller";
 import { requireLogin } from "~/middlewares/auth.handler";
+import validateRequest from "~/middlewares/validateRequest.handler";
+import { registerUserSchema } from "~/schemas/user.schema";
 
 const authRoutes = Router();
 
@@ -62,7 +64,11 @@ const authRoutes = Router();
  *             schema:
  *               $ref: '#/components/schemas/InternalServerError'
  */
-authRoutes.post("/register", AuthController.register);
+authRoutes.post(
+  "/register",
+  validateRequest(registerUserSchema),
+  AuthController.register
+);
 
 /**
  * @swagger

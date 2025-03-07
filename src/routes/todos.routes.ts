@@ -1,7 +1,7 @@
 import { Router } from "express";
 import TodoController from "~/controllers/todos.controller";
 import { requireAuth } from "~/middlewares/auth.handler";
-import { validateRequest } from "~/middlewares/validateRequest.handler";
+import validateRequest from "~/middlewares/validateRequest.handler";
 import idSchema from "~/schemas/id.schema";
 import { createTodoSchema, updateTodoSchema } from "~/schemas/todo.schema";
 
