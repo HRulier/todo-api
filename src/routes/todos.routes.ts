@@ -34,22 +34,27 @@ const todosRoutes = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
 todosRoutes.get("/", requireAuth, TodoController.getTodos);
@@ -83,22 +88,27 @@ todosRoutes.get("/", requireAuth, TodoController.getTodos);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
 todosRoutes.get(
@@ -132,7 +142,7 @@ todosRoutes.get(
  *             schema:
  *               $ref: '#/components/schemas/Todo'
  *       400:
- *         description: Bad request - validation errors
+ *         description: Bad request - Validation error / missing or invalid fields
  *         content:
  *           application/json:
  *             schema:
@@ -142,18 +152,23 @@ todosRoutes.get(
  *                 $ref: '#/components/schemas/TodoMissingFieldExample'
  *               invalidField:
  *                 $ref: '#/components/schemas/TodoInvalidFieldExample'
-
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
 todosRoutes.post(
@@ -194,7 +209,7 @@ todosRoutes.post(
  *             schema:
  *               $ref: '#/components/schemas/Todo'
  *       400:
- *         description: Bad request - validation errors
+ *         description: Bad request - Validation error / missing or invalid fields
  *         content:
  *           application/json:
  *             schema:
@@ -207,22 +222,27 @@ todosRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
 todosRoutes.put(
@@ -266,22 +286,27 @@ todosRoutes.put(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "The requested todo(s) was not found"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               NotFound:
+ *                 $ref: '#/components/schemas/TodoINotFoundExample'
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RequireAuthError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
 todosRoutes.delete(

@@ -6,7 +6,6 @@ import jwt, { Secret } from "jsonwebtoken";
 import dotEnvConfig from "~/config/dot-env";
 import {
   NotFoundError,
-  UnauthorizedError,
   CustomError,
   BadRequestError,
   handleError,
@@ -109,10 +108,6 @@ async function logout(req: IAuthentificateRequest, res: Response) {
   try {
     const { refreshToken } = req.body;
 
-    if (!refreshToken) {
-      throw new CustomError("Access denied", 403);
-    }
-
     const user = await User.findOne({
       refreshToken,
     });
@@ -172,15 +167,10 @@ async function forgotPassword(req: Request, res: Response) {
 
 async function resetPassword(req: Request, res: Response) {
   try {
-    if (!req.body.password) {
-      throw new BadRequestError("Missing field");
-    }
     const user = await User.findOne({
       resetPasswordExpires: { $gt: Date.now() },
       resetPasswordToken: req.params.token,
     });
-
-    console.log(user, req.params.token, Date.now() > 1741016514505);
 
     if (!user) {
       throw new CustomError(

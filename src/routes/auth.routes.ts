@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { z } from "zod";
 import AuthController from "~/controllers/auth.controller";
 import { requireLogin } from "~/middlewares/auth.handler";
 import validateRequest from "~/middlewares/validateRequest.handler";
@@ -40,30 +41,27 @@ const authRoutes = Router();
  *                       format: email
  *                       description: The registered email
  *                       example: "user@example.com"
- *       422:
- *         description: Validation error - missing or invalid fields
+ *       400:
+ *         description: Bad request - Validation error / missing or invalid fields
  *         content:
  *           application/json:
  *             schema:
- *               properties:
- *                 error:
- *                   type: string
+ *               $ref: '#/components/schemas/ServerError'
  *             examples:
- *               Email already in use:
- *                 value:
- *                   error: "That email address is already in use."
- *               Missing password:
- *                 value:
- *                   error: "You must enter a password."
- *               Missing email:
- *                 value:
- *                   error: "You must enter an email address."
+ *               missingField:
+ *                 $ref: '#/components/schemas/UserMissingFieldExample'
+ *               invalidField:
+ *                 $ref: '#/components/schemas/UserInvalidFieldExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
+
 authRoutes.post(
   "/register",
   validateRequest(registerUserSchema),
@@ -103,25 +101,43 @@ authRoutes.post(
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       400:
- *         description: Bad request, missing required field.
- *       401:
- *         description: Unauthorized - user not authenticated
+ *         description: Bad request - Validation error / missing or invalid fields
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Your login details could not be verified. Please try again."
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               missingField:
+ *                 $ref: '#/components/schemas/UserMissingFieldExample'
+ *               invalidField:
+ *                 $ref: '#/components/schemas/UserInvalidFieldExample'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               Unauthorized:
+ *                 $ref: '#/components/schemas/RequireAuthErrExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-authRoutes.post("/login", requireLogin, AuthController.login);
+authRoutes.post(
+  "/login",
+  validateRequest(
+    z.object({ email: z.string().email(), password: z.string() })
+  ),
+  requireLogin,
+  AuthController.login
+);
 
 /**
  * @swagger
@@ -153,29 +169,45 @@ authRoutes.post("/login", requireLogin, AuthController.login);
  *                   type: string
  *                   description: JWT token for authentication
  *                   example: "eyJhbGciOiJIUzI1NiIs..."
- *       403:
- *         description: Access denied - missing refresh token or invalid fields
+ *       400:
+ *         description: Bad request - Validation error
  *         content:
  *           application/json:
  *             schema:
- *               properties:
- *                 error:
- *                   type: string
+ *               $ref: '#/components/schemas/ServerError'
  *             examples:
- *               Invalid Refresh Token:
+ *               missingField:
+ *                  $ref: '#/components/schemas/MissingRefreshTokenExample'
+ *               invalidField:
+ *                  $ref: '#/components/schemas/InvalidRefreshTokenExample'
+ *       403:
+ *         description: Access denied - invalid fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InvalidRefreshTokenError:
+ *                 summary: 'Invalid refresh token'
  *                 value:
- *                   error: "Invalid Refresh Token"
- *               Missing refresh token:
- *                 value:
- *                   error: "Access denied"
+ *                   status: 'error'
+ *                   message: 'Invalid Refresh Token'
+ *                   errors: []
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-authRoutes.post("/refresh-token", AuthController.refresh);
+authRoutes.post(
+  "/refresh-token",
+  validateRequest(z.object({ refreshToken: z.string() })),
+  AuthController.refresh
+);
 
 /**
  * @swagger
@@ -207,16 +239,17 @@ authRoutes.post("/refresh-token", AuthController.refresh);
  *                   type: string
  *                   description: Logout success
  *                   example: "Logout success"
- *       403:
- *         description: Access denied - missing refresh token
+ *       400:
+ *         description: Bad request - Validation error
  *         content:
  *           application/json:
  *             schema:
- *               properties:
- *                 error:
- *                   type: string
- *                   description: Missing refresh token
- *                   example: "Access denied"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               missingField:
+ *                  $ref: '#/components/schemas/MissingRefreshTokenExample'
+ *               invalidField:
+ *                  $ref: '#/components/schemas/InvalidRefreshTokenExample'
  *       404:
  *         description: User not found. The refresh token provided is not associated with any registered user.
  *         content:
@@ -224,17 +257,30 @@ authRoutes.post("/refresh-token", AuthController.refresh);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                   example: "The requested user was not found"
+ *                 errors:
+ *                   type: array
+ *                   example: []
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-authRoutes.post("/logout", AuthController.logout);
+authRoutes.post(
+  "/logout",
+  validateRequest(z.object({ refreshToken: z.string() })),
+  AuthController.logout
+);
 
 /**
  * @swagger
@@ -274,27 +320,39 @@ authRoutes.post("/logout", AuthController.logout);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                   example: "Can't find user for this email"
+ *                 errors:
+ *                   type: array
+ *                   example: []
  *       400:
  *         description: Bad request, missing required field. The email field must be provided for the password reset process to be initiated.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Missing field"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               invalidField:
+ *                 $ref: '#/components/schemas/UserInvalidFieldExample'
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-authRoutes.post("/forgot-password", AuthController.forgotPassword);
+authRoutes.post(
+  "/forgot-password",
+  validateRequest(z.object({ email: z.string().email() })),
+  AuthController.forgotPassword
+);
 
 /**
  * @swagger
@@ -342,26 +400,54 @@ authRoutes.post("/forgot-password", AuthController.forgotPassword);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                   example: "Password reset token is invalid or has expired."
+ *                 errors:
+ *                   type: array
+ *                   example: []
  *       400:
  *         description: Bad request, missing required field. The password field must be provided.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Missing field"
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               MissingFieldError:
+ *                 summary: 'Missing password'
+ *                 value:
+ *                   status: 'error'
+ *                   message: 'Validation failed'
+ *                   errors: [{
+ *                     "path": "password",
+ *                     "message": "Required"
+ *                   }]
+ *               InvalidFieldError:
+ *                 summary: 'Invalid password'
+ *                 value:
+ *                   status: 'error'
+ *                   message: 'Validation failed'
+ *                   errors: [{
+ *                     "path": "password",
+ *                     "message": "Expected string, received number"
+ *                  }]
  *       500:
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/InternalServerError'
+ *               $ref: '#/components/schemas/ServerError'
+ *             examples:
+ *               InternalServerError:
+ *                 $ref: '#/components/schemas/InternalServerErrExample'
  */
 
-authRoutes.post("/reset-password/:token", AuthController.resetPassword);
+authRoutes.post(
+  "/reset-password/:token",
+  validateRequest(z.object({ password: z.string() })),
+  AuthController.resetPassword
+);
 
 export default authRoutes;

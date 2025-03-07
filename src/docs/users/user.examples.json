@@ -1,0 +1,54 @@
+{
+  "UserMissingFieldExample": {
+    "summary": "Required field is missing",
+    "value": {
+      "status": "error",
+      "message": "Validation failed",
+      "errors": [
+        {
+          "path": "password",
+          "message": "Required"
+        }
+      ]
+    }
+  },
+  "UserInvalidFieldExample": {
+    "summary": "Field contains invalid value",
+    "value": {
+      "status": "error",
+      "message": "Validation failed",
+      "errors": [
+        {
+          "path": "email",
+          "message": "Invalid email"
+        }
+      ]
+    }
+  },
+  "InvalidRefreshTokenExample": {
+    "summary": "Invalid Refresh Token",
+    "value": {
+      "status": "error",
+      "message": "Validation failed",
+      "errors": [
+        {
+          "path": "refreshToken",
+          "message": "Expected string, received number"
+        }
+      ]
+    }
+  },
+  "MissingRefreshTokenExample": {
+    "summary": "Missing refresh token",
+    "value": {
+      "status": "error",
+      "message": "Validation failed",
+      "errors": [
+        {
+          "path": "refreshToken",
+          "message": "Required"
+        }
+      ]
+    }
+  }
+}

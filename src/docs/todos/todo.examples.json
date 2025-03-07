@@ -24,5 +24,13 @@
         }
       ]
     }
+  },
+  "TodoINotFoundExample": {
+    "summary": "Error todo(s) not found",
+    "value": {
+      "status": "error",
+      "message": "The requested todo(s) was not found",
+      "errors": []
+    }
   }
 }
