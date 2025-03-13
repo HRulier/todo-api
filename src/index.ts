@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import app from "~/server";
 import configDotenv from "~/config/dot-env";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
+
+extendZodWithOpenApi(z);
 
 dotenv.config(configDotenv);
 

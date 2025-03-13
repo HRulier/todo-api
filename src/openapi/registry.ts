@@ -1,16 +1,11 @@
-import {
-  OpenAPIRegistry,
-  OpenApiGeneratorV31,
-} from "@asteasolutions/zod-to-openapi";
+import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 
 const registry = new OpenAPIRegistry();
 
 registry.registerComponent("securitySchemes", "bearerAuth", {
   type: "http",
   scheme: "bearer",
-  // bearerFormat: 'JWT',
+  //   bearerFormat: 'JWT',
 });
 
-const generator = new OpenApiGeneratorV31(registry.definitions);
-
-export { registry, generator };
+export default registry;
