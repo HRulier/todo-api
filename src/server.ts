@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import logger from "morgan";
 
-import { setupSwagger } from "./config/swagger";
 import configDotenv from "~/config/dot-env";
 import router from "~/routes";
 
@@ -30,9 +29,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
-
-// Setup Swagger documentation
-setupSwagger(app);
 
 router(app);
 
