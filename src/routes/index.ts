@@ -8,7 +8,7 @@ import unknownRoutesHandler from "~/middlewares/unknownRoutes.handler";
 import limiter from "~/middlewares/rateLimiter.handler";
 
 import AuthRoutes from "./auth.routes";
-import TodosRoutes from "./todos.routes";
+import TasksRoutes from "./task.routes";
 
 dotenv.config(dotEnvConfig);
 
@@ -23,7 +23,7 @@ export default function (app: Application) {
   }
 
   apiRoutes.use("/auth", AuthRoutes);
-  apiRoutes.use("/todos", TodosRoutes);
+  apiRoutes.use("/tasks", TasksRoutes);
 
   // Set url for API group routes
   app.use("/api", apiRoutes);
