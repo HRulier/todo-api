@@ -5,7 +5,24 @@ import {
   CreateTaskSchema,
   UpdateTaskSchema,
 } from "~/schemas/task.schema";
+import { getErrorResponse } from "~/openapi/utils";
 import IdSchema from "~/schemas/id.schema";
+
+const notFoundResponse = getErrorResponse(
+  "Task not found",
+  "The requested task(s) was not found"
+);
+
+const unauthorizedResponse = getErrorResponse(
+  "Unauthorized",
+  "Invalid or expired token. Please log in again."
+);
+
+const internalServerResponse = getErrorResponse(
+  "Internal server error",
+  "InternalError"
+);
+
 export const registerTaskPaths = () => {
   // GET /tasks
   registry.registerPath({
@@ -25,10 +42,13 @@ export const registerTaskPaths = () => {
           },
         },
       },
+      404: notFoundResponse,
+      401: unauthorizedResponse,
+      500: internalServerResponse,
     },
   });
 
-  // GET /tasks/{id }
+  // GET /tasks/{id}
   registry.registerPath({
     method: "get",
     path: "/tasks/{id}",
@@ -47,6 +67,9 @@ export const registerTaskPaths = () => {
           },
         },
       },
+      404: notFoundResponse,
+      401: unauthorizedResponse,
+      500: internalServerResponse,
     },
   });
 
@@ -75,6 +98,8 @@ export const registerTaskPaths = () => {
           },
         },
       },
+      401: unauthorizedResponse,
+      500: internalServerResponse,
     },
   });
 
@@ -104,6 +129,9 @@ export const registerTaskPaths = () => {
           },
         },
       },
+      404: notFoundResponse,
+      401: unauthorizedResponse,
+      500: internalServerResponse,
     },
   });
 
@@ -130,6 +158,9 @@ export const registerTaskPaths = () => {
           },
         },
       },
+      404: notFoundResponse,
+      401: unauthorizedResponse,
+      500: internalServerResponse,
     },
   });
 };
