@@ -4,8 +4,6 @@ import { Express } from "express";
 import path from "path";
 
 import errorSchemas from "../docs/errors";
-import todoSchemas from "../docs/todos";
-import userSchemas from "../docs/users";
 
 export const setupSwagger = (app: Express) => {
   const options: swaggerJSDoc.Options = {
@@ -44,8 +42,6 @@ export const setupSwagger = (app: Express) => {
       components: {
         schemas: {
           ...errorSchemas,
-          ...todoSchemas,
-          ...userSchemas,
         },
         securitySchemes: {
           bearerAuth: {

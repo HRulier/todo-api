@@ -8,3 +8,10 @@ export const registerUserSchema = z.object({
     lastName: z.string(),
   }),
 });
+
+export const updateUserProfileSchema = z.object({
+  profile: z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+  }),
+});

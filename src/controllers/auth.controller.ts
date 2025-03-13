@@ -194,7 +194,11 @@ async function getProfile(req: IAuthentificateRequest, res: Response) {
   if (req.user?._id) {
     const user = req.user as IUser;
     const userInfo = await getUserInfo(user);
-    return res.status(200).json({ ...userInfo });
+    return res.status(200).json({
+      user: {
+        ...userInfo,
+      },
+    });
   } else {
     return res.status(404).json({
       error: "Can't get profile",
