@@ -1,4 +1,4 @@
-import { z } from "zod";
+import z from "~/utils/zod/zod-extended";
 
 export const registerUserSchema = z.object({
   email: z.string().email(),

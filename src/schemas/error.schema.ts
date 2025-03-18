@@ -1,7 +1,7 @@
-// src/schemas/error.schema.ts
-import z from "zod";
+import z from "~/utils/zod/zod-extended";
 import registry from "~/openapi/registry";
 
+// Get ValidationErrorSchema with specific examples
 const getErrorSchema = (
   status = "error",
   message = "An error occurred",
@@ -23,18 +23,7 @@ const getErrorSchema = (
       .openapi({ example: [] }),
   });
 
-// const ValidationErrorSchema = z.object({
-//   status: z.literal("error").openapi({ example: "error" }),
-//   message: z.string().openapi({ example: "Validation failed" }),
-//   errors: z.array(
-//     z.object({
-//       path: z.string().openapi({ example: "fieldName" }),
-//       message: z
-//         .string()
-//         .openapi({ example: "String must contain at least 1 character(s)" }),
-//     })
-//   ),
-// });
+const ValidationErrorSchema = getErrorSchema("error", "", "", "");
 
 const UnauthorizedErrorSchema = getErrorSchema(
   "error",
@@ -46,12 +35,14 @@ const InternalServerErrorSchema = getErrorSchema("error", "InternalError");
 const NotFoundErrorSchema = getErrorSchema("error", "Resource not found");
 
 // Enregistrer les schémas dans le registry
-// registry.register("ValidationError", ValidationErrorSchema);
+registry.register("ValidationError", ValidationErrorSchema);
 registry.register("NotFoundError", NotFoundErrorSchema);
 registry.register("UnauthorizedError", UnauthorizedErrorSchema);
 registry.register("InternalServerError", InternalServerErrorSchema);
 
 export {
-  // ValidationErrorSchema,
   getErrorSchema,
+  ValidationErrorSchema,
+  UnauthorizedErrorSchema,
+  InternalServerErrorSchema,
 };

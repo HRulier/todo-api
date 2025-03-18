@@ -1,6 +1,6 @@
 import { Response } from "express";
 import mongoose from "mongoose";
-import { z } from "zod";
+import { z } from "~/utils/zod/zod-extended";
 import { IUser } from "./users";
 import { IAuthentificateRequest } from "./auth";
 import { createTaskSchema, updateTaskSchema } from "~/schemas/task.schema";

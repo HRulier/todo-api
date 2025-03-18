@@ -1,28 +1,23 @@
 import registry from "../registry";
-import z from "zod";
+import z from "~/utils/zod/zod-extended";
 import {
   TaskSchema,
   CreateTaskSchema,
   UpdateTaskSchema,
 } from "~/schemas/task.schema";
-import { getErrorResponse } from "~/openapi/utils";
+import {
+  taskNotFoundResponse,
+  taskIdValidationExample,
+  taskValidationExample,
+} from "../examples/task.examples";
+import { ValidationErrorSchema } from "~/schemas/error.schema";
+import {
+  unauthorizedResponse,
+  internalServerResponse,
+} from "~/openapi/examples/error.examples";
 import IdSchema from "~/schemas/id.schema";
 
-const notFoundResponse = getErrorResponse(
-  "Task not found",
-  "The requested task(s) was not found"
-);
-
-const unauthorizedResponse = getErrorResponse(
-  "Unauthorized",
-  "Invalid or expired token. Please log in again."
-);
-
-const internalServerResponse = getErrorResponse(
-  "Internal server error",
-  "InternalError"
-);
-
+// Register paths
 export const registerTaskPaths = () => {
   // GET /tasks
   registry.registerPath({
@@ -42,7 +37,7 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      404: notFoundResponse,
+      404: taskNotFoundResponse,
       401: unauthorizedResponse,
       500: internalServerResponse,
     },
@@ -67,7 +62,16 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      404: notFoundResponse,
+      400: {
+        description: "Validation error - Invalid MongoDB ID",
+        content: {
+          "application/json": {
+            schema: ValidationErrorSchema,
+            example: taskIdValidationExample,
+          },
+        },
+      },
+      404: taskNotFoundResponse,
       401: unauthorizedResponse,
       500: internalServerResponse,
     },
@@ -78,7 +82,7 @@ export const registerTaskPaths = () => {
     method: "post",
     path: "/tasks",
     tags: ["Tasks"],
-    summary: "Create a new ask for the authenticated user",
+    summary: "Create a new task for the authenticated user",
     security: [{ bearerAuth: [] }],
     request: {
       body: {
@@ -91,10 +95,19 @@ export const registerTaskPaths = () => {
     },
     responses: {
       201: {
-        description: "List of tasks",
+        description: "Task created successfully",
         content: {
           "application/json": {
             schema: z.object({ task: TaskSchema }),
+          },
+        },
+      },
+      400: {
+        description: "Validation error - missing or invalid fields",
+        content: {
+          "application/json": {
+            schema: ValidationErrorSchema,
+            example: taskValidationExample,
           },
         },
       },
@@ -129,7 +142,16 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      404: notFoundResponse,
+      400: {
+        description: "Validation error - missing or invalid fields",
+        content: {
+          "application/json": {
+            schema: ValidationErrorSchema,
+            example: taskValidationExample,
+          },
+        },
+      },
+      404: taskNotFoundResponse,
       401: unauthorizedResponse,
       500: internalServerResponse,
     },
@@ -140,7 +162,7 @@ export const registerTaskPaths = () => {
     method: "delete",
     path: "/tasks/{id}",
     tags: ["Tasks"],
-    summary: "Delete one todo by Id for the authenticated user",
+    summary: "Delete one task by Id for the authenticated user",
     security: [{ bearerAuth: [] }],
     request: {
       params: IdSchema,
@@ -158,7 +180,16 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      404: notFoundResponse,
+      400: {
+        description: "Validation error - Invalid MongoDB ID",
+        content: {
+          "application/json": {
+            schema: ValidationErrorSchema,
+            example: taskIdValidationExample,
+          },
+        },
+      },
+      404: taskNotFoundResponse,
       401: unauthorizedResponse,
       500: internalServerResponse,
     },

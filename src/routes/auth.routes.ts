@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { z } from "zod";
+import z from "zod";
 import AuthController from "~/controllers/auth.controller";
 import { requireAuth, requireLogin } from "~/middlewares/auth.handler";
 import validateRequest from "~/middlewares/validateRequest.handler";

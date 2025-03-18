@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import app from "~/server";
 import configDotenv from "~/config/dot-env";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
-import { z } from "zod";
+import z from "~/utils/zod/zod-extended";
 
 extendZodWithOpenApi(z);
 

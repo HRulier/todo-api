@@ -1,10 +1,8 @@
-import z from "zod";
 import registry from "~/openapi/registry";
-import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import z from "~/utils/zod/zod-extended";
+import { getErrorSchema } from "./error.schema";
 
-extendZodWithOpenApi(z);
-
-export const TaskSchema = z.object({
+const TaskSchema = z.object({
   _id: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ID")
@@ -24,16 +22,23 @@ export const TaskSchema = z.object({
   updatedAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
 });
 
-export const CreateTaskSchema = z.object({
+const CreateTaskSchema = z.object({
   date: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
   description: z.string().openapi({ example: "Lorem ipsum dolor sit amet" }),
 });
 
 // Set fields as optional for update
-export const UpdateTaskSchema = CreateTaskSchema.partial().extend({
+const UpdateTaskSchema = CreateTaskSchema.partial().extend({
   completed: z.boolean().default(false).openapi({ example: true }),
 });
+
+const TaskNotFoundSchema = getErrorSchema(
+  "error",
+  "The requested task(s) was not found"
+);
 
 registry.register("Task", TaskSchema);
 registry.register("CreateTaskSchema", CreateTaskSchema);
 registry.register("UpdateTaskSchema", UpdateTaskSchema);
+
+export { TaskSchema, CreateTaskSchema, UpdateTaskSchema, TaskNotFoundSchema };

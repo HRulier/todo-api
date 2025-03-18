@@ -10,7 +10,7 @@ export const createOpenApiDocument = () => {
   const generator = new OpenApiGeneratorV31(registry.definitions);
 
   return generator.generateDocument({
-    openapi: "3.0.0",
+    openapi: "3.1.0",
     info: {
       title: "Todo Management API",
       version: "1.0.0",
