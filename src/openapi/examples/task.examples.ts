@@ -3,7 +3,10 @@ import { generateZodValidationErrorExample } from "~/utils/zod/zod-error-generat
 import IdSchema from "~/schemas/id.schema";
 import { CreateTaskSchema, TaskNotFoundSchema } from "~/schemas/task.schema";
 
-// Error responses config
+// -------------------------------------
+// Invalid Data
+// --------------------------------------
+
 const taskNotFoundResponse = getErrorResponseConfig(
   "Task not found",
   TaskNotFoundSchema
@@ -14,6 +17,10 @@ const invalidTaskExample = {
   date: "date",
 };
 
+// -------------------------------------
+// Generated Validation errors
+// -------------------------------------
+
 const taskValidationExample = generateZodValidationErrorExample(
   CreateTaskSchema,
   invalidTaskExample
@@ -23,4 +30,10 @@ const taskIdValidationExample = generateZodValidationErrorExample(IdSchema, {
   id: "invalid id",
 });
 
-export { taskNotFoundResponse, taskValidationExample, taskIdValidationExample };
+export {
+  // Validation errors
+  taskValidationExample,
+  taskIdValidationExample,
+  // Error responses
+  taskNotFoundResponse,
+};

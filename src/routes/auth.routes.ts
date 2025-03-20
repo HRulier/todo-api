@@ -4,15 +4,15 @@ import AuthController from "~/controllers/auth.controller";
 import { requireAuth, requireLogin } from "~/middlewares/auth.handler";
 import validateRequest from "~/middlewares/validateRequest.handler";
 import {
-  registerUserSchema,
-  updateUserProfileSchema,
+  RegisterUserSchema,
+  UpdateUserProfileSchema,
 } from "~/schemas/user.schema";
 
 const authRoutes = Router();
 
 authRoutes.post(
   "/register",
-  validateRequest(registerUserSchema),
+  validateRequest(RegisterUserSchema),
   AuthController.register
 );
 
@@ -53,7 +53,7 @@ authRoutes.get("/profile", requireAuth, AuthController.getProfile);
 
 authRoutes.put(
   "/profile",
-  validateRequest(updateUserProfileSchema),
+  validateRequest(UpdateUserProfileSchema),
   requireAuth,
   AuthController.updateProfile
 );

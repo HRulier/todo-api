@@ -26,6 +26,9 @@ export const createOpenApiDocument = () => {
         description: "Development server",
       },
     ],
-    tags: [{ name: "Tasks", description: "Tasks management operations" }],
+    tags: [
+      { name: "Authentication", description: "Auth management operations" },
+      { name: "Tasks", description: "Tasks management operations" },
+    ],
   });
 };

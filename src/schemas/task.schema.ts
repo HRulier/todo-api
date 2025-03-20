@@ -18,7 +18,7 @@ const TaskSchema = z.object({
     .openapi({
       example: "67c5c2e9656ca8c7f95f7d52",
     }),
-  createAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
+  createdAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
   updatedAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
 });
 
