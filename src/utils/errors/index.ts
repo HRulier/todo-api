@@ -1,19 +1,20 @@
 import { Response, Request } from "express";
+import HTTP_STATUS from "../http_status";
 
 export class CustomError extends Error {
-  statusCode = 400;
+  statusCode = HTTP_STATUS.BAD_REQUEST as number;
 
   constructor(message: string, statusCode?: number) {
     super();
     this.message = message;
-    this.statusCode = statusCode || 400;
+    this.statusCode = statusCode || HTTP_STATUS.BAD_REQUEST;
     // are extending a built-in class
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
 
 export class InternalError extends Error {
-  statusCode = 500;
+  statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
   constructor(req: Request) {
     super();
@@ -24,7 +25,7 @@ export class InternalError extends Error {
 }
 
 export class NotFoundError extends Error {
-  statusCode = 404;
+  statusCode = HTTP_STATUS.NOT_FOUND;
 
   constructor(message: string) {
     super();
@@ -35,7 +36,7 @@ export class NotFoundError extends Error {
 }
 
 export class BadRequestError extends Error {
-  statusCode = 400;
+  statusCode = HTTP_STATUS.BAD_REQUEST;
 
   constructor(message: string) {
     super();
@@ -46,7 +47,7 @@ export class BadRequestError extends Error {
 }
 
 export class UnauthorizedError extends Error {
-  statusCode = 401;
+  statusCode = HTTP_STATUS.UNAUTHORIZED;
 
   constructor(message?: string) {
     super();
@@ -61,9 +62,11 @@ export const handleError = (res: Response, req: Request, error: any) => {
   // console.log('InternalError', internatError);
   // console.log(error.statusCode, error.message);
 
-  return res.status(error.statusCode || 500).json({
-    status: "error",
-    message: error.message || internatError.message,
-    errors: [],
-  });
+  return res
+    .status(error.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    .json({
+      status: "error",
+      message: error.message || internatError.message,
+      errors: [],
+    });
 };

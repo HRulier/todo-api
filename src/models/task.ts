@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import { TodoDocument } from "~/types/todo";
+import { TaskDocument } from "~/types/task";
 const Schema = mongoose.Schema;
 
 //= ===============================
-// Todo Schema
+// Task Schema
 //= ===============================
 
-const TodoSchema = new Schema(
+const TaskSchema = new Schema(
   {
     description: {
       type: String,
@@ -31,4 +31,4 @@ const TodoSchema = new Schema(
   }
 );
 
-export default mongoose.model<TodoDocument>("Todo", TodoSchema);
+export default mongoose.model<TaskDocument>("Task", TaskSchema);

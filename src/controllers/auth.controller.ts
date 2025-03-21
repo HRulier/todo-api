@@ -4,6 +4,7 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import jwt, { Secret } from "jsonwebtoken";
 import dotEnvConfig from "~/config/dot-env";
+import HTTP_STATUS from "~/utils/http_status";
 import {
   NotFoundError,
   CustomError,
@@ -33,7 +34,10 @@ async function register(req: Request, res: Response) {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new CustomError("That email address is already in use.", 422);
+      throw new CustomError(
+        "That email address is already in use.",
+        HTTP_STATUS.UNPROCESSABLE_ENTITY
+      );
     }
 
     const user = new User({
@@ -47,7 +51,7 @@ async function register(req: Request, res: Response) {
       _id: user._id,
       email: user.email,
     };
-    res.status(201).json({
+    res.status(HTTP_STATUS.CREATED).json({
       user: infoUser,
     });
   } catch (error: unknown) {
@@ -69,7 +73,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
     await user.set({ refreshToken });
     await user.save();
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       token: accessToken,
       refreshToken,
       user: userInfo,
@@ -85,20 +89,20 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      throw new CustomError("Access denied", 403);
+      throw new CustomError("Access denied", HTTP_STATUS.FORBIDDEN);
     }
 
     const user = await User.findOne({ refreshToken });
 
     if (!user) {
-      throw new CustomError("Invalid Refresh Token", 403);
+      throw new CustomError("Invalid Refresh Token", HTTP_STATUS.FORBIDDEN);
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as Secret);
 
     const userInfo = await getUserInfo(user);
     const accessToken = generateAccessToken(userInfo);
-    return res.status(200).json({ token: accessToken });
+    return res.status(HTTP_STATUS.OK).json({ token: accessToken });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -119,7 +123,7 @@ async function logout(req: IAuthentificateRequest, res: Response) {
     await user.set({ refreshToken: null });
     await user.save();
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       message: "Logout success",
     });
   } catch (error: unknown) {
@@ -136,7 +140,10 @@ async function forgotPassword(req: Request, res: Response) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new CustomError("Can't find user for this email", 404);
+      throw new CustomError(
+        "Can't find user for this email",
+        HTTP_STATUS.NOT_FOUND
+      );
     }
 
     const resetToken = await crypto.randomBytes(32).toString("hex");
@@ -156,7 +163,7 @@ async function forgotPassword(req: Request, res: Response) {
       })
     );
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       message: "Please check your email for the link to reset your password.",
       // resetToken,
     });
@@ -175,7 +182,7 @@ async function resetPassword(req: Request, res: Response) {
     if (!user) {
       throw new CustomError(
         "Password reset token is invalid or has expired.",
-        422
+        HTTP_STATUS.UNPROCESSABLE_ENTITY
       );
     }
 
@@ -184,7 +191,9 @@ async function resetPassword(req: Request, res: Response) {
     user.resetPasswordExpires = 0;
     await user.save();
 
-    return res.status(200).json({ message: "Your password has been changed." });
+    return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: "Your password has been changed." });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -194,9 +203,13 @@ async function getProfile(req: IAuthentificateRequest, res: Response) {
   if (req.user?._id) {
     const user = req.user as IUser;
     const userInfo = await getUserInfo(user);
-    return res.status(200).json({ ...userInfo });
+    return res.status(HTTP_STATUS.OK).json({
+      user: {
+        ...userInfo,
+      },
+    });
   } else {
-    return res.status(404).json({
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
       error: "Can't get profile",
     });
   }
@@ -218,7 +231,7 @@ async function updateProfile(req: IAuthentificateRequest, res: Response) {
 
     const userInfo = await getUserInfo(user);
 
-    return res.status(200).json({ user: userInfo });
+    return res.status(HTTP_STATUS.OK).json({ user: userInfo });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
