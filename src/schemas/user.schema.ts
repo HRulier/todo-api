@@ -1,5 +1,5 @@
 import z from "~/utils/zod/zod-extended";
-import { getErrorSchema } from "./error.schema";
+import registry from "~/openapi/registry";
 
 const UserSchema = z.object({
   _id: z
@@ -25,8 +25,6 @@ const UserProfileSchema = UserSchema.pick({
   profile: true,
 });
 
-const RegisterResponseSchema = UserSchema.pick({ _id: true, email: true });
-
 const RegisterUserSchema = UserSchema.pick({
   email: true,
   password: true,
@@ -42,17 +40,13 @@ const UpdateUserProfileSchema = z.object({
   }),
 });
 
-const UserNotFoundSchema = getErrorSchema(
-  "error",
-  "The requested user was not found"
-);
+registry.register("User", UserSchema);
+registry.register("UserProfileSchema", UserProfileSchema);
 
 export {
   UserSchema,
   RegisterUserSchema,
   LoginUserSchema,
   UpdateUserProfileSchema,
-  RegisterResponseSchema,
   UserProfileSchema,
-  UserNotFoundSchema,
 };

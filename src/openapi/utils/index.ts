@@ -1,14 +1,17 @@
 import { ResponseConfig } from "@asteasolutions/zod-to-openapi";
-import { ZodType } from "zod";
+// import { ZodType } from "zod";
+import { ErrorResponse } from "~/types/error";
+import { ErrorSchema } from "~/schemas/error.schema";
 
 const getErrorResponseConfig = (
   description: string,
-  schema: ZodType<any>
+  example: ErrorResponse
 ): ResponseConfig => ({
   description,
   content: {
     "application/json": {
-      schema,
+      schema: ErrorSchema,
+      example,
     },
   },
 });

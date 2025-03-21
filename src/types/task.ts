@@ -1,13 +1,13 @@
 import { Response } from "express";
 import mongoose from "mongoose";
-import { z } from "~/utils/zod/zod-extended";
+import z from "~/utils/zod/zod-extended";
 import { IUser } from "./users";
 import { IAuthentificateRequest } from "./auth";
-import { createTaskSchema, updateTaskSchema } from "~/schemas/task.schema";
+import { CreateTaskSchema, UpdateTaskSchema } from "~/schemas/task.schema";
 
 // Types inferred
-export type CreateTaskInput = z.infer<typeof createTaskSchema>;
-export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
+export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>;
 
 // Extend type for task document
 export type TaskDocument = CreateTaskInput & {

@@ -3,11 +3,9 @@ import { generateZodValidationErrorExample } from "~/utils/zod/zod-error-generat
 import {
   RegisterUserSchema,
   LoginUserSchema,
-  UserNotFoundSchema,
   UpdateUserProfileSchema,
   UserSchema,
 } from "~/schemas/user.schema";
-import { getErrorSchema } from "~/schemas/error.schema";
 import { getErrorResponseConfig } from "../utils";
 
 // -------------------------------------
@@ -36,11 +34,11 @@ const invalidResetPasswordDataExample = {
   pwd: "test",
 };
 
+const invalidUpdateProfileDataExample = { profile: { firstName: null } };
+
 // -------------------------------------
 // Generated Validation errors
 // -------------------------------------
-
-const invalidupdateProfileDataExample = { profile: { firstName: null } };
 
 const registerValidationExample = generateZodValidationErrorExample(
   RegisterUserSchema,
@@ -59,7 +57,7 @@ const refreshTokenValidationExample = generateZodValidationErrorExample(
 
 const updateProfileValidationExample = generateZodValidationErrorExample(
   UpdateUserProfileSchema,
-  invalidupdateProfileDataExample
+  invalidUpdateProfileDataExample
 );
 
 const forgotPasswordValidationExample = generateZodValidationErrorExample(
@@ -76,32 +74,43 @@ const resetPasswordValidationExample = generateZodValidationErrorExample(
 // Error config. responses
 // -------------------------------------
 
-const userNotFoundResponse = getErrorResponseConfig(
-  "User not found",
-  UserNotFoundSchema
-);
+const userNotFoundResponse = getErrorResponseConfig("User not found", {
+  status: "error",
+  message: "The requested user was not found",
+  errors: [],
+});
 
-const credentialsNotVerifiedResponse = getErrorResponseConfig(
-  "Unauthorized",
-  getErrorSchema(
-    "error",
-    "Your login details could not be verified. Please try again."
-  )
-);
+const credentialsNotVerifiedResponse = getErrorResponseConfig("Unauthorized", {
+  status: "error",
+  message: "Your login details could not be verified. Please try again.",
+  errors: [],
+});
 
 const invalidRefreshTokenResponse = getErrorResponseConfig(
   "Access denied - invalid fields",
-  getErrorSchema("error", "Invalid Refresh Token")
+  {
+    status: "error",
+    message: "Invalid Refresh Token",
+    errors: [],
+  }
 );
 
 const userNotFoundForgotPasswordResponse = getErrorResponseConfig(
   "User not found",
-  getErrorSchema("error", "Can't find user for this email")
+  {
+    status: "error",
+    message: "Can't find user for this email",
+    errors: [],
+  }
 );
 
 const resetTokenTokenExpiredResponse = getErrorResponseConfig(
   "Invalid token. The password reset token is either expired, invalid.",
-  getErrorSchema("error", "Password reset token is invalid or has expired.")
+  {
+    status: "error",
+    message: "Password reset token is invalid or has expired.",
+    errors: [],
+  }
 );
 
 export {

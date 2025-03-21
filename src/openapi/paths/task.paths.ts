@@ -1,5 +1,6 @@
 import registry from "../registry";
 import z from "~/utils/zod/zod-extended";
+import HTTP_STATUS from "~/utils/http_status";
 import {
   TaskSchema,
   CreateTaskSchema,
@@ -10,7 +11,7 @@ import {
   taskIdValidationExample,
   taskValidationExample,
 } from "../examples/task.examples";
-import { ValidationErrorSchema } from "~/schemas/error.schema";
+import { ErrorSchema } from "~/schemas/error.schema";
 import {
   unauthorizedResponse,
   internalServerResponse,
@@ -27,7 +28,7 @@ export const registerTaskPaths = () => {
     summary: "Get all tasks for the authenticated user",
     security: [{ bearerAuth: [] }],
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "List of tasks",
         content: {
           "application/json": {
@@ -37,9 +38,9 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      404: taskNotFoundResponse,
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.NOT_FOUND]: taskNotFoundResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -54,7 +55,7 @@ export const registerTaskPaths = () => {
       params: IdSchema,
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Get todo successfully",
         content: {
           "application/json": {
@@ -62,18 +63,18 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - Invalid MongoDB ID",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: taskIdValidationExample,
           },
         },
       },
-      404: taskNotFoundResponse,
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.NOT_FOUND]: taskNotFoundResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -94,7 +95,7 @@ export const registerTaskPaths = () => {
       },
     },
     responses: {
-      201: {
+      [HTTP_STATUS.CREATED]: {
         description: "Task created successfully",
         content: {
           "application/json": {
@@ -102,17 +103,17 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - missing or invalid fields",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: taskValidationExample,
           },
         },
       },
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -134,7 +135,7 @@ export const registerTaskPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Task updated successfully",
         content: {
           "application/json": {
@@ -142,18 +143,18 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - missing or invalid fields",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: taskValidationExample,
           },
         },
       },
-      404: taskNotFoundResponse,
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.NOT_FOUND]: taskNotFoundResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -168,7 +169,7 @@ export const registerTaskPaths = () => {
       params: IdSchema,
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Todo successfully removed",
         content: {
           "application/json": {
@@ -180,18 +181,18 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - Invalid MongoDB ID",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: taskIdValidationExample,
           },
         },
       },
-      404: taskNotFoundResponse,
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.NOT_FOUND]: taskNotFoundResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 };

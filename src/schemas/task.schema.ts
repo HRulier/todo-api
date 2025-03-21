@@ -1,6 +1,5 @@
 import registry from "~/openapi/registry";
 import z from "~/utils/zod/zod-extended";
-import { getErrorSchema } from "./error.schema";
 
 const TaskSchema = z.object({
   _id: z
@@ -32,13 +31,6 @@ const UpdateTaskSchema = CreateTaskSchema.partial().extend({
   completed: z.boolean().default(false).openapi({ example: true }),
 });
 
-const TaskNotFoundSchema = getErrorSchema(
-  "error",
-  "The requested task(s) was not found"
-);
-
 registry.register("Task", TaskSchema);
-registry.register("CreateTaskSchema", CreateTaskSchema);
-registry.register("UpdateTaskSchema", UpdateTaskSchema);
 
-export { TaskSchema, CreateTaskSchema, UpdateTaskSchema, TaskNotFoundSchema };
+export { TaskSchema, CreateTaskSchema, UpdateTaskSchema };

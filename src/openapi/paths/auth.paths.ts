@@ -1,8 +1,8 @@
 import z from "~/utils/zod/zod-extended";
 import registry from "~/openapi/registry";
+import HTTP_STATUS from "~/utils/http_status";
 import {
   UserSchema,
-  RegisterResponseSchema,
   RegisterUserSchema,
   LoginUserSchema,
   UpdateUserProfileSchema,
@@ -25,7 +25,7 @@ import {
   unauthorizedResponse,
   internalServerResponse,
 } from "~/openapi/examples/error.examples";
-import { ValidationErrorSchema } from "~/schemas/error.schema";
+import { ErrorSchema } from "~/schemas/error.schema";
 
 // Register paths
 export const registerAuthPaths = () => {
@@ -47,7 +47,7 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Login successful, returns a JWT token and user info",
         content: {
           "application/json": {
@@ -61,17 +61,17 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - missing or invalid fields",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: loginValidationExample,
           },
         },
       },
-      401: credentialsNotVerifiedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: credentialsNotVerifiedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -92,24 +92,26 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      201: {
+      [HTTP_STATUS.CREATED]: {
         description: "User registered successfully",
         content: {
           "application/json": {
-            schema: z.object({ user: RegisterResponseSchema }),
+            schema: z.object({
+              user: UserSchema.pick({ _id: true, email: true }),
+            }),
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - missing or invalid fields",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: registerValidationExample,
           },
         },
       },
-      500: internalServerResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -135,7 +137,7 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Refresh token successful, returns a new JWT token",
         content: {
           "application/json": {
@@ -145,17 +147,17 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Bad request - Validation error",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: refreshTokenValidationExample,
           },
         },
       },
-      403: invalidRefreshTokenResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.FORBIDDEN]: invalidRefreshTokenResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -177,7 +179,7 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description:
           "Password reset email sent successfully. A link to reset the password has been sent to the user's email address.",
         content: {
@@ -191,17 +193,17 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Bad request - Validation error",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: forgotPasswordValidationExample,
           },
         },
       },
-      404: userNotFoundForgotPasswordResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.NOT_FOUND]: userNotFoundForgotPasswordResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -226,7 +228,7 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description:
           "Password reset successful. The user's password has been successfully updated and can now be used for login.",
         content: {
@@ -239,17 +241,17 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Bad request - Validation error",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: resetPasswordValidationExample,
           },
         },
       },
-      422: resetTokenTokenExpiredResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenTokenExpiredResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -274,7 +276,7 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Logout success",
         content: {
           "application/json": {
@@ -284,17 +286,17 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Bad request - Validation error",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: refreshTokenValidationExample,
           },
         },
       },
-      404: userNotFoundResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.NOT_FOUND]: userNotFoundResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -306,7 +308,7 @@ export const registerAuthPaths = () => {
     summary: "Get profile for the authenticated user",
     security: [{ bearerAuth: [] }],
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Get profile for the authenticated user",
         content: {
           "application/json": {
@@ -314,8 +316,8 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
@@ -336,7 +338,7 @@ export const registerAuthPaths = () => {
       },
     },
     responses: {
-      200: {
+      [HTTP_STATUS.OK]: {
         description: "Profile successfully updated",
         content: {
           "application/json": {
@@ -344,17 +346,17 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      400: {
+      [HTTP_STATUS.BAD_REQUEST]: {
         description: "Validation error - missing or invalid fields",
         content: {
           "application/json": {
-            schema: ValidationErrorSchema,
+            schema: ErrorSchema,
             example: updateProfileValidationExample,
           },
         },
       },
-      401: unauthorizedResponse,
-      500: internalServerResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 };

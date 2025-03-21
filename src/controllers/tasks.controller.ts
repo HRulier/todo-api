@@ -1,4 +1,5 @@
 import { Response } from "express";
+import HTTP_STATUS from "~/utils/http_status";
 import { NotFoundError, handleError } from "~/utils/errors";
 import {
   ITaskController,
@@ -20,7 +21,7 @@ async function getTasks(req: IAuthentificateRequest, res: Response) {
       throw NotFound;
     }
 
-    return res.status(200).json({ tasks });
+    return res.status(HTTP_STATUS.OK).json({ tasks });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -36,7 +37,7 @@ async function getTaskById(req: IAuthentificateRequest, res: Response) {
       throw NotFound;
     }
 
-    return res.status(200).json({ task });
+    return res.status(HTTP_STATUS.OK).json({ task });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -53,7 +54,7 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
     });
     await task.save();
 
-    return res.status(201).json({ task });
+    return res.status(HTTP_STATUS.CREATED).json({ task });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -77,7 +78,7 @@ async function updateTask(req: IAuthentificateRequest, res: Response) {
       throw NotFound;
     }
 
-    return res.status(200).json({ task });
+    return res.status(HTTP_STATUS.OK).json({ task });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -91,7 +92,9 @@ async function deleteTask(req: IAuthentificateRequest, res: Response) {
     if (!task) {
       throw NotFound;
     }
-    return res.status(200).json({ message: "Task successfully removed" });
+    return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: "Task successfully removed" });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }

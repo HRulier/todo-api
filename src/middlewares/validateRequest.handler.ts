@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AnyZodObject, ZodError } from "zod";
+import HTTP_STATUS from "~/utils/http_status";
 
 type ValidationSource = "body" | "query" | "params" | "headers";
 
@@ -26,7 +27,7 @@ const validateRequest = (
     } catch (error) {
       if (error instanceof ZodError) {
         // Format Zod errors
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           status: "error",
           message: "Validation failed",
           errors: error.errors.map((err) => ({
