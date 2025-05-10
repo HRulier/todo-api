@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AnyZodObject, ZodError } from "zod";
 import HTTP_STATUS from "~/utils/http_status";
 
-type ValidationSource = "body" | "query" | "params" | "headers";
+type ValidationSource = "body" | "query" | "params" | "headers" | "cookies";
 
 type ValidationOptions = {
   source?: ValidationSource | ValidationSource[];
@@ -12,6 +12,7 @@ const validateRequest = (
   options: ValidationOptions = {}
 ): ((req: Request, res: Response, next: NextFunction) => void) => {
   const { source = "body" } = options;
+
 
   return (req: Request, res: Response, next: NextFunction) => {
     try {

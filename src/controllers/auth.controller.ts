@@ -65,9 +65,16 @@ async function login(req: IAuthentificateRequest, res: Response) {
     await user.set({ refreshToken });
     await user.save();
 
+    // Secure true for production, secure: true need https
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      // sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(HTTP_STATUS.OK).json({
       token: accessToken,
-      refreshToken,
       user: userInfo,
     });
   } catch (error: unknown) {
@@ -78,7 +85,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
 
 async function refresh(req: IAuthentificateRequest, res: Response) {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.cookies;
 
     if (!refreshToken) {
       throw new CustomError("Access denied", HTTP_STATUS.FORBIDDEN);
@@ -94,6 +101,19 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
 
     const userInfo = await getUserInfo(user);
     const accessToken = generateAccessToken(userInfo);
+    const newRefreshToken = generateRefreshToken(userInfo);
+
+    await user.set({ refreshToken: newRefreshToken });
+    await user.save();
+
+    // Secure true for production, secure: true need https
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      // sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(HTTP_STATUS.OK).json({ token: accessToken });
   } catch (error: unknown) {
     return handleError(res, req, error);

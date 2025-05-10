@@ -52,9 +52,6 @@ export const registerAuthPaths = () => {
         content: {
           "application/json": {
             schema: z.object({
-              refreshToken: z
-                .string()
-                .openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
               token: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
               user: UserProfileSchema,
             }),
