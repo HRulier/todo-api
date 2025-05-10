@@ -27,7 +27,7 @@ authRoutes.post(
 
 authRoutes.post(
   "/refresh-token",
-  validateRequest(z.object({ refreshToken: z.string() })),
+  validateRequest(z.object({ refreshToken: z.string() }), { source: "cookies"}),
   AuthController.refresh
 );
 
