@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "lib": ["es2022", "dom"], // components react-email
     "outDir": "./dist",
-    "rootDir": "./src",
+    // "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "strictNullChecks": true,
@@ -19,6 +19,7 @@
     "jsx": "react",
     "declaration": true
   },
+  "include": ["src/**/*", "tests/**/*", "jest.config.tstests/setup.ts"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
   }

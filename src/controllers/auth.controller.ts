@@ -5,12 +5,7 @@ import dotenv from "dotenv";
 import jwt, { Secret } from "jsonwebtoken";
 import dotEnvConfig from "~/config/dot-env";
 import HTTP_STATUS from "~/utils/http_status";
-import {
-  NotFoundError,
-  CustomError,
-  BadRequestError,
-  handleError,
-} from "~/utils/errors";
+import { NotFoundError, CustomError, BadRequestError, handleError } from "~/utils/errors";
 import { IAuthentificateRequest, IAuthController } from "~/types/auth";
 
 import User from "~/models/user";
@@ -34,10 +29,7 @@ async function register(req: Request, res: Response) {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new CustomError(
-        "That email address is already in use.",
-        HTTP_STATUS.UNPROCESSABLE_ENTITY
-      );
+      throw new CustomError("That email address is already in use.", HTTP_STATUS.UNPROCESSABLE_ENTITY);
     }
 
     const user = new User({
@@ -140,10 +132,7 @@ async function forgotPassword(req: Request, res: Response) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new CustomError(
-        "Can't find user for this email",
-        HTTP_STATUS.NOT_FOUND
-      );
+      throw new CustomError("Can't find user for this email", HTTP_STATUS.NOT_FOUND);
     }
 
     const resetToken = await crypto.randomBytes(32).toString("hex");
@@ -180,10 +169,7 @@ async function resetPassword(req: Request, res: Response) {
     });
 
     if (!user) {
-      throw new CustomError(
-        "Password reset token is invalid or has expired.",
-        HTTP_STATUS.UNPROCESSABLE_ENTITY
-      );
+      throw new CustomError("Password reset token is invalid or has expired.", HTTP_STATUS.UNPROCESSABLE_ENTITY);
     }
 
     user.password = req.body.password;
@@ -191,9 +177,7 @@ async function resetPassword(req: Request, res: Response) {
     user.resetPasswordExpires = 0;
     await user.save();
 
-    return res
-      .status(HTTP_STATUS.OK)
-      .json({ message: "Your password has been changed." });
+    return res.status(HTTP_STATUS.OK).json({ message: "Your password has been changed." });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
