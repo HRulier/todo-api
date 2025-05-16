@@ -24,11 +24,18 @@ const UserSchema = new Schema(
       required: true,
       default: "Member",
     },
+    isVerified: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     profile: {
       firstName: { type: String, required: true },
       lastName: { type: String, required: true },
     },
     refreshToken: { type: String },
+    verificationToken: { type: String },
+    verificationTokenExpires: { type: Number },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Number },
   },

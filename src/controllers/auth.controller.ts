@@ -18,6 +18,7 @@ import { IUser } from "~/types/users";
 
 import sendEmail from "~/utils/email";
 import ResetPassword from "~/utils/email/templates/ResetPassword";
+import VerifiedUserEmail from "~/utils/email/templates/VerifiedUserEmail";
 import { getUserInfo } from "~/services/users.services";
 import { generateAccessToken, generateRefreshToken } from "~/utils/jwt";
 
@@ -40,9 +41,14 @@ async function register(req: Request, res: Response) {
       );
     }
 
+    const verificationToken = await crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpires = Date.now() + 24 * 3600000;
+
     const user = new User({
       email,
       password,
+      verificationToken,
+      verificationTokenExpires,
       profile: profile || {},
     });
 
@@ -51,6 +57,19 @@ async function register(req: Request, res: Response) {
       _id: user._id,
       email: user.email,
     };
+
+    const subject = `confirmation de votre inscription`;
+    const url = `${process.env.API_URL}/auth/verified-email/${verificationToken}`;
+
+    await sendEmail(
+      email,
+      subject,
+      VerifiedUserEmail({
+        username: `${user.profile.firstName} ${user.profile.lastName}`,
+        url,
+      })
+    );
+
     res.status(HTTP_STATUS.CREATED).json({
       user: infoUser,
     });
@@ -241,6 +260,72 @@ async function validateResetPasswordToken(req: Request, res: Response) {
   }
 }
 
+async function verifiedUserEmail(req: Request, res: Response) {
+  try {
+    const user = await User.findOne({
+      verificationTokenExpires: { $gt: Date.now() },
+      verificationToken: req.params.token,
+    });
+
+    if (!user) {
+      return res.redirect(`${process.env.FRONT_URL}/verification-expired`);
+    }
+
+    user.isVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpires = 0;
+    await user.save();
+
+    return res.redirect(`${process.env.FRONT_URL}/verified`);
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
+async function resendVerificationEmail(req: Request, res: Response) {
+  try {
+    const email = req.body.email;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw NotFound;
+    }
+
+    if (user.isVerified) {
+      throw new CustomError(
+        "This account has already been verified.",
+        HTTP_STATUS.BAD_REQUEST
+      );
+    }
+
+    const verificationToken = await crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpires = Date.now() + 24 * 3600000;
+
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpires = verificationTokenExpires;
+
+    await user.save();
+
+    const subject = `confirmation de votre inscription`;
+    const url = `${process.env.API_URL}/auth/verified-email/${verificationToken}`;
+
+    await sendEmail(
+      email,
+      subject,
+      VerifiedUserEmail({
+        username: `${user.profile.firstName} ${user.profile.lastName}`,
+        url,
+      })
+    );
+
+    res.status(HTTP_STATUS.OK).json({
+      message: "Verification link sent.",
+    });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
 async function getProfile(req: IAuthentificateRequest, res: Response) {
   if (req.user?._id) {
     const user = req.user as IUser;
@@ -256,6 +341,7 @@ async function getProfile(req: IAuthentificateRequest, res: Response) {
     });
   }
 }
+
 async function updateProfile(req: IAuthentificateRequest, res: Response) {
   try {
     const user = await User.findById(req.user);
@@ -287,6 +373,8 @@ const AuthController: IAuthController = {
   forgotPassword,
   resetPassword,
   validateResetPasswordToken,
+  verifiedUserEmail,
+  resendVerificationEmail,
   getProfile,
   updateProfile,
 };

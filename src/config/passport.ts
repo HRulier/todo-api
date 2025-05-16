@@ -21,7 +21,7 @@ const localLogin = new LocalStrategy(
   localOptions,
   async (email: string, password: string, done: any) => {
     try {
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email, isVerified: true });
       if (!user) {
         return done(null, false, {
           error: "Your login details could not be verified. Please try again.",

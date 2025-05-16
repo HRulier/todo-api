@@ -56,6 +56,14 @@ authRoutes.get(
   AuthController.validateResetPasswordToken
 );
 
+authRoutes.get("/verified-email/:token", AuthController.verifiedUserEmail);
+
+authRoutes.post(
+  "/resend-verification-email",
+  validateRequest(z.object({ email: z.string().email() })),
+  AuthController.resendVerificationEmail
+);
+
 authRoutes.get("/profile", requireAuth, AuthController.getProfile);
 
 authRoutes.put(

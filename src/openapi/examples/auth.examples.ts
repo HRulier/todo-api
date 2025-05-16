@@ -104,11 +104,20 @@ const userNotFoundForgotPasswordResponse = getErrorResponseConfig(
   }
 );
 
-const resetTokenTokenExpiredResponse = getErrorResponseConfig(
+const resetTokenExpiredResponse = getErrorResponseConfig(
   "Invalid token. The password reset token is either expired, invalid.",
   {
     status: "error",
     message: "Password reset token is invalid or has expired.",
+    errors: [],
+  }
+);
+
+const userAlreadyVerifiedExample = getErrorResponseConfig(
+  "User account has already been verified.",
+  {
+    status: "error",
+    message: "This account has already been verified.",
     errors: [],
   }
 );
@@ -126,5 +135,6 @@ export {
   credentialsNotVerifiedResponse,
   invalidRefreshTokenResponse,
   userNotFoundForgotPasswordResponse,
-  resetTokenTokenExpiredResponse,
+  resetTokenExpiredResponse,
+  userAlreadyVerifiedExample,
 };

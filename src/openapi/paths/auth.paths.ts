@@ -19,7 +19,8 @@ import {
   credentialsNotVerifiedResponse,
   invalidRefreshTokenResponse,
   userNotFoundForgotPasswordResponse,
-  resetTokenTokenExpiredResponse,
+  resetTokenExpiredResponse,
+  userAlreadyVerifiedExample,
 } from "~/openapi/examples/auth.examples";
 import {
   unauthorizedResponse,
@@ -247,7 +248,7 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenTokenExpiredResponse,
+      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenExpiredResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
@@ -278,7 +279,7 @@ export const registerAuthPaths = () => {
           },
         },
       },
-      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenTokenExpiredResponse,
+      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenExpiredResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
@@ -384,6 +385,66 @@ export const registerAuthPaths = () => {
         },
       },
       [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  // GET /verified-email/{token}
+  registry.registerPath({
+    method: "get",
+    path: "/verified-email/{token}",
+    tags: ["Authentication"],
+    summary: "Verify user email",
+    description:
+      "After register users received an email with a link to trigger this endpoint and verify their email",
+    request: {
+      params: z.object({
+        token: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
+      }),
+    },
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description:
+          "Redirect user to /verified page, if token expired redirect to /verification-expired (page that confirm user registration is completed)",
+      },
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  // POST /auth/resend-verification-email
+  registry.registerPath({
+    method: "post",
+    path: "/auth/resend-verification-email",
+    tags: ["Authentication"],
+    summary: "Resend verification email",
+    description:
+      "Resend verification email. Useful if user have lost the email or if the link for verification expired.",
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              email: z.string().email().openapi({ example: "user@email.fr" }),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description: "Verification link sent.",
+        content: {
+          "application/json": {
+            schema: z.object({
+              message: z
+                .string()
+                .openapi({ example: "Verification link sent." }),
+            }),
+          },
+        },
+      },
+      [HTTP_STATUS.BAD_REQUEST]: userAlreadyVerifiedExample,
+      [HTTP_STATUS.NOT_FOUND]: userNotFoundResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
