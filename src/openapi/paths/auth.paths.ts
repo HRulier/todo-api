@@ -252,6 +252,37 @@ export const registerAuthPaths = () => {
     },
   });
 
+  // GET /auth/reset-password/validate/:token
+  registry.registerPath({
+    method: "get",
+    path: "/auth/reset-password/validate/{token}",
+    tags: ["Authentication"],
+    summary: "Validate Reset password token",
+    description:
+      "Validate reset password token. The token is usually sent to the user's email after they request a password reset.",
+    request: {
+      params: z.object({
+        token: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
+      }),
+    },
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description: "Password reset token valid.",
+        content: {
+          "application/json": {
+            schema: z.object({
+              message: z.string().openapi({
+                example: "Password reset token valid.",
+              }),
+            }),
+          },
+        },
+      },
+      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenTokenExpiredResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
   // POST /auth/logout
   registry.registerPath({
     method: "post",

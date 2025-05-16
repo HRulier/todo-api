@@ -27,7 +27,9 @@ authRoutes.post(
 
 authRoutes.post(
   "/refresh-token",
-  validateRequest(z.object({ refreshToken: z.string() }), { source: "cookies"}),
+  validateRequest(z.object({ refreshToken: z.string() }), {
+    source: "cookies",
+  }),
   AuthController.refresh
 );
 
@@ -47,6 +49,11 @@ authRoutes.post(
   "/reset-password/:token",
   validateRequest(z.object({ password: z.string() })),
   AuthController.resetPassword
+);
+
+authRoutes.get(
+  "/reset-password/validate/:token",
+  AuthController.validateResetPasswordToken
 );
 
 authRoutes.get("/profile", requireAuth, AuthController.getProfile);

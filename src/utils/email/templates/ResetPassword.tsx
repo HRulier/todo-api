@@ -48,6 +48,9 @@ export const ResetPasswordEmail = ({
             </Link>
           </Text>
           <Text style={paragraph}>
+            (vous disposez de 24heures pour utiliser ce lien.)
+          </Text>
+          <Text style={paragraph}>
             Si vous n'êtes pas à l'origine de cette demande, ignorez simplement
             cet e-mail. Votre mot de passe actuel restera inchangé.
           </Text>

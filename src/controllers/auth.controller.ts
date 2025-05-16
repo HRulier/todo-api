@@ -5,7 +5,12 @@ import dotenv from "dotenv";
 import jwt, { Secret } from "jsonwebtoken";
 import dotEnvConfig from "~/config/dot-env";
 import HTTP_STATUS from "~/utils/http_status";
-import { NotFoundError, CustomError, BadRequestError, handleError } from "~/utils/errors";
+import {
+  NotFoundError,
+  CustomError,
+  BadRequestError,
+  handleError,
+} from "~/utils/errors";
 import { IAuthentificateRequest, IAuthController } from "~/types/auth";
 
 import User from "~/models/user";
@@ -29,7 +34,10 @@ async function register(req: Request, res: Response) {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new CustomError("That email address is already in use.", HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      throw new CustomError(
+        "That email address is already in use.",
+        HTTP_STATUS.UNPROCESSABLE_ENTITY
+      );
     }
 
     const user = new User({
@@ -68,7 +76,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
     // Secure true for production, secure: true need https
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       // sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -109,7 +117,7 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
     // Secure true for production, secure: true need https
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       // sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -152,7 +160,10 @@ async function forgotPassword(req: Request, res: Response) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new CustomError("Can't find user for this email", HTTP_STATUS.NOT_FOUND);
+      throw new CustomError(
+        "Can't find user for this email",
+        HTTP_STATUS.NOT_FOUND
+      );
     }
 
     const resetToken = await crypto.randomBytes(32).toString("hex");
@@ -189,7 +200,10 @@ async function resetPassword(req: Request, res: Response) {
     });
 
     if (!user) {
-      throw new CustomError("Password reset token is invalid or has expired.", HTTP_STATUS.UNPROCESSABLE_ENTITY);
+      throw new CustomError(
+        "Password reset token is invalid or has expired.",
+        HTTP_STATUS.UNPROCESSABLE_ENTITY
+      );
     }
 
     user.password = req.body.password;
@@ -197,7 +211,31 @@ async function resetPassword(req: Request, res: Response) {
     user.resetPasswordExpires = 0;
     await user.save();
 
-    return res.status(HTTP_STATUS.OK).json({ message: "Your password has been changed." });
+    return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: "Your password has been changed." });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
+async function validateResetPasswordToken(req: Request, res: Response) {
+  try {
+    const user = await User.findOne({
+      resetPasswordExpires: { $gt: Date.now() },
+      resetPasswordToken: req.params.token,
+    });
+
+    if (!user) {
+      throw new CustomError(
+        "Password reset token is invalid or has expired.",
+        HTTP_STATUS.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: "Password reset token valid" });
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -248,6 +286,7 @@ const AuthController: IAuthController = {
   logout,
   forgotPassword,
   resetPassword,
+  validateResetPasswordToken,
   getProfile,
   updateProfile,
 };
