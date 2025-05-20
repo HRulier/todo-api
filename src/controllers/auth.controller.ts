@@ -149,7 +149,7 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
 
 async function logout(req: IAuthentificateRequest, res: Response) {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.cookies;
 
     const user = await User.findOne({
       refreshToken,
@@ -191,7 +191,7 @@ async function forgotPassword(req: Request, res: Response) {
     await user.save();
 
     const subject = `changement de mot de passe`;
-    const url = `${req.headers.origin}/reset-password/${resetToken}`;
+    const url = `${process.env.API_URL}/auth/reset-password/redirect/${resetToken}`;
 
     await sendEmail(
       email,
@@ -238,23 +238,19 @@ async function resetPassword(req: Request, res: Response) {
   }
 }
 
-async function validateResetPasswordToken(req: Request, res: Response) {
+async function resetPasswordRedirect(req: Request, res: Response) {
   try {
+    const { token } = req.params;
     const user = await User.findOne({
       resetPasswordExpires: { $gt: Date.now() },
-      resetPasswordToken: req.params.token,
+      resetPasswordToken: token,
     });
 
     if (!user) {
-      throw new CustomError(
-        "Password reset token is invalid or has expired.",
-        HTTP_STATUS.UNPROCESSABLE_ENTITY
-      );
+      return res.redirect(`${process.env.FRONT_URL}/reset-password`);
     }
 
-    return res
-      .status(HTTP_STATUS.OK)
-      .json({ message: "Password reset token valid" });
+    return res.redirect(`${process.env.FRONT_URL}/reset-password/${token}`);
   } catch (error: unknown) {
     return handleError(res, req, error);
   }
@@ -372,7 +368,7 @@ const AuthController: IAuthController = {
   logout,
   forgotPassword,
   resetPassword,
-  validateResetPasswordToken,
+  resetPasswordRedirect,
   verifiedUserEmail,
   resendVerificationEmail,
   getProfile,

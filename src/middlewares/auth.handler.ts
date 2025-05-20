@@ -11,7 +11,7 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
       if (err) return next(err); // Pass unexpected errors to Express error handler
 
       if (!user) {
-        return res.status(401).json({
+        return res.status(info?.status || 401).json({
           status: "error",
           message: info?.error || "Unauthorized",
           errors: [],

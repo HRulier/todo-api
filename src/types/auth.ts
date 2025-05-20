@@ -13,7 +13,7 @@ export interface IAuthController {
   logout: (req: Request, res: Response) => void;
   forgotPassword: (req: Request, res: Response) => void;
   resetPassword: (req: Request, res: Response) => void;
-  validateResetPasswordToken: (req: Request, res: Response) => void;
+  resetPasswordRedirect: (req: Request, res: Response) => void;
   verifiedUserEmail: (req: Request, res: Response) => void;
   resendVerificationEmail: (req: Request, res: Response) => void;
   getProfile: (req: IAuthentificateRequest, res: Response) => void;

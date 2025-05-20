@@ -33,9 +33,11 @@ authRoutes.post(
   AuthController.refresh
 );
 
-authRoutes.post(
+authRoutes.get(
   "/logout",
-  validateRequest(z.object({ refreshToken: z.string() })),
+  validateRequest(z.object({ refreshToken: z.string() }), {
+    source: "cookies",
+  }),
   AuthController.logout
 );
 
@@ -52,11 +54,20 @@ authRoutes.post(
 );
 
 authRoutes.get(
-  "/reset-password/validate/:token",
-  AuthController.validateResetPasswordToken
+  "/reset-password/redirect/:token",
+  validateRequest(z.object({ token: z.string() }), {
+    source: "params",
+  }),
+  AuthController.resetPasswordRedirect
 );
 
-authRoutes.get("/verified-email/:token", AuthController.verifiedUserEmail);
+authRoutes.get(
+  "/verified-email/:token",
+  validateRequest(z.object({ token: z.string() }), {
+    source: "params",
+  }),
+  AuthController.verifiedUserEmail
+);
 
 authRoutes.post(
   "/resend-verification-email",

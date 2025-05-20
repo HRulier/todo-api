@@ -122,17 +122,11 @@ export const registerAuthPaths = () => {
     description:
       "Use a refresh token to obtain a new access token when user token has expired.",
     request: {
-      body: {
-        content: {
-          "application/json": {
-            schema: z.object({
-              refreshToken: z
-                .string()
-                .openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
-            }),
-          },
-        },
-      },
+      cookies: z.object({
+        refreshToken: z
+          .string()
+          .openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
+      }),
     },
     responses: {
       [HTTP_STATUS.OK]: {
@@ -253,14 +247,14 @@ export const registerAuthPaths = () => {
     },
   });
 
-  // GET /auth/reset-password/validate/:token
+  // GET /auth/reset-password/redirect/:token
   registry.registerPath({
     method: "get",
-    path: "/auth/reset-password/validate/{token}",
+    path: "/auth/reset-password/redirect/{token}",
     tags: ["Authentication"],
-    summary: "Validate Reset password token",
+    summary: "Redirect user to reset password page",
     description:
-      "Validate reset password token. The token is usually sent to the user's email after they request a password reset.",
+      "Redirect user to reset password page and handle token validation. The token is usually sent to the user's email after they request a password reset.",
     request: {
       params: z.object({
         token: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
@@ -268,41 +262,26 @@ export const registerAuthPaths = () => {
     },
     responses: {
       [HTTP_STATUS.OK]: {
-        description: "Password reset token valid.",
-        content: {
-          "application/json": {
-            schema: z.object({
-              message: z.string().openapi({
-                example: "Password reset token valid.",
-              }),
-            }),
-          },
-        },
+        description:
+          "Redirect user to /reset-password/:token page, if token expired to /reset-password (without token, mean token expired)",
       },
-      [HTTP_STATUS.UNPROCESSABLE_ENTITY]: resetTokenExpiredResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
 
-  // POST /auth/logout
+  // GET /auth/logout
   registry.registerPath({
-    method: "post",
+    method: "get",
     path: "/auth/logout",
     tags: ["Authentication"],
     summary: "Remove refresh token",
     description: "Revokes the refresh token to prevent future token renewals",
     request: {
-      body: {
-        content: {
-          "application/json": {
-            schema: z.object({
-              refreshToken: z
-                .string()
-                .openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
-            }),
-          },
-        },
-      },
+      cookies: z.object({
+        refreshToken: z
+          .string()
+          .openapi({ example: "eyJhbGciOiJIUzI1NiIs..." }),
+      }),
     },
     responses: {
       [HTTP_STATUS.OK]: {

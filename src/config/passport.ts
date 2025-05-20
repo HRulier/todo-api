@@ -4,6 +4,7 @@ import passportJWT from "passport-jwt";
 import passportLocal from "passport-local";
 import dotenv from "dotenv";
 import dotEnvConfig from "./dot-env";
+import HTTP_STATUS from "~/utils/http_status";
 
 dotenv.config(dotEnvConfig);
 
@@ -21,10 +22,17 @@ const localLogin = new LocalStrategy(
   localOptions,
   async (email: string, password: string, done: any) => {
     try {
-      const user = await User.findOne({ email, isVerified: true });
+      const user = await User.findOne({ email });
       if (!user) {
         return done(null, false, {
           error: "Your login details could not be verified. Please try again.",
+        });
+      }
+
+      if (!user.isVerified) {
+        return done(null, false, {
+          error: "Email not verified.",
+          status: HTTP_STATUS.FORBIDDEN,
         });
       }
 
