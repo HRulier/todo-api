@@ -13,7 +13,7 @@ import {
   loginValidationExample,
   refreshTokenValidationExample,
   updateProfileValidationExample,
-  forgotPasswordValidationExample,
+  invalidEmailValidationExample,
   resetPasswordValidationExample,
   userNotFoundResponse,
   credentialsNotVerifiedResponse,
@@ -190,7 +190,7 @@ export const registerAuthPaths = () => {
         content: {
           "application/json": {
             schema: ErrorSchema,
-            example: forgotPasswordValidationExample,
+            example: invalidEmailValidationExample,
           },
         },
       },
@@ -424,6 +424,53 @@ export const registerAuthPaths = () => {
       },
       [HTTP_STATUS.BAD_REQUEST]: userAlreadyVerifiedExample,
       [HTTP_STATUS.NOT_FOUND]: userNotFoundResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  // POST /auth/forgot-password
+  registry.registerPath({
+    method: "post",
+    path: "/auth/email-status",
+    tags: ["Authentication"],
+    summary: "Get email status",
+    description:
+      "Get email status before login, usefull to check if a user doesn't have password yet in case he used google auth",
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: UserSchema.pick({ email: true }),
+          },
+        },
+      },
+    },
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description: "Get the email status",
+        content: {
+          "application/json": {
+            schema: z.object({
+              exists: z.boolean().openapi({
+                example: true,
+              }),
+              hasPassword: z.boolean().openapi({
+                example: false,
+              }),
+              authMethods: z.array(z.string()).openapi({ example: ["google"] }),
+            }),
+          },
+        },
+      },
+      [HTTP_STATUS.BAD_REQUEST]: {
+        description: "Bad request - Validation error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+            example: invalidEmailValidationExample,
+          },
+        },
+      },
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });

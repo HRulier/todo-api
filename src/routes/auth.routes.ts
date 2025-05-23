@@ -27,8 +27,8 @@ authRoutes.post(
 
 //Google OAuth2 endpoints
 authRoutes.get("/google", AuthController.loginWithGoogle);
-
 authRoutes.get("/google/callback", AuthController.loginWithGoogleCallback);
+// **** //
 
 authRoutes.post(
   "/refresh-token",
@@ -78,6 +78,12 @@ authRoutes.post(
   "/resend-verification-email",
   validateRequest(z.object({ email: z.string().email() })),
   AuthController.resendVerificationEmail
+);
+
+authRoutes.post(
+  "/email-status",
+  validateRequest(z.object({ email: z.string().email() })),
+  AuthController.getEmailStatus
 );
 
 authRoutes.get("/profile", requireAuth, AuthController.getProfile);

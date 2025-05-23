@@ -102,9 +102,9 @@ const googleStrategy = new GoogleStrategy(
     done: any
   ) {
     // console.log(accessToken, refreshToken);
-    // console.log(profile);
     const user = await findOrCreateUser({
       email: profile.emails[0].value,
+      googleId: profile.id,
       profile: {
         firstName: profile.name?.familyName || "Non renseigné",
         lastName: profile.name?.givenName || "Non renseigné",

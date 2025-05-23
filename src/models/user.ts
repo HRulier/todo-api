@@ -18,11 +18,16 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
+      default: null,
     },
     role: {
       type: String,
       required: true,
       default: "Member",
+    },
+    googleId: {
+      type: Number,
+      default: null,
     },
     isVerified: {
       type: Boolean,
@@ -33,11 +38,11 @@ const UserSchema = new Schema(
       firstName: { type: String, required: true },
       lastName: { type: String, required: true },
     },
-    refreshToken: { type: String },
-    verificationToken: { type: String },
-    verificationTokenExpires: { type: Number },
-    resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Number },
+    refreshToken: { type: String, default: null },
+    verificationToken: { type: String, default: null },
+    verificationTokenExpires: { type: Number, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Number, default: null },
   },
   {
     timestamps: true,

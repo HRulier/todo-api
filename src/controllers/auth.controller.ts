@@ -362,6 +362,29 @@ async function resendVerificationEmail(req: Request, res: Response) {
   }
 }
 
+async function getEmailStatus(req: Request, res: Response) {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    const authMethods = [];
+    if (user?.googleId) authMethods.push("google");
+
+    const statusEmail = {
+      exists: !!user,
+      hasPassword: !!user?.password,
+      authMethods,
+    };
+
+    res.status(HTTP_STATUS.OK).json({
+      statusEmail,
+    });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
 async function getProfile(req: IAuthentificateRequest, res: Response) {
   if (req.user?._id) {
     const user = req.user as IUser;
@@ -413,6 +436,7 @@ const AuthController: IAuthController = {
   resetPasswordRedirect,
   verifiedUserEmail,
   resendVerificationEmail,
+  getEmailStatus,
   getProfile,
   updateProfile,
 };
