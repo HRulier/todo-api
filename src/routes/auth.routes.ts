@@ -80,12 +80,6 @@ authRoutes.post(
   AuthController.resendVerificationEmail
 );
 
-authRoutes.post(
-  "/email-status",
-  validateRequest(z.object({ email: z.string().email() })),
-  AuthController.getEmailStatus
-);
-
 authRoutes.get("/profile", requireAuth, AuthController.getProfile);
 
 authRoutes.put(

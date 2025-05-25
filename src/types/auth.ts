@@ -22,7 +22,6 @@ export interface IAuthController {
   resetPasswordRedirect: (req: Request, res: Response) => void;
   verifiedUserEmail: (req: Request, res: Response) => void;
   resendVerificationEmail: (req: Request, res: Response) => void;
-  getEmailStatus: (req: Request, res: Response) => void;
   getProfile: (req: IAuthentificateRequest, res: Response) => void;
   updateProfile: (req: IAuthentificateRequest, res: Response) => void;
 }
