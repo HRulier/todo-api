@@ -60,7 +60,7 @@ const updateProfileValidationExample = generateZodValidationErrorExample(
   invalidUpdateProfileDataExample
 );
 
-const forgotPasswordValidationExample = generateZodValidationErrorExample(
+const invalidEmailValidationExample = generateZodValidationErrorExample(
   UserSchema.pick({ email: true }),
   invalidForgotPasswordDataExample
 );
@@ -128,7 +128,7 @@ export {
   loginValidationExample,
   refreshTokenValidationExample,
   updateProfileValidationExample,
-  forgotPasswordValidationExample,
+  invalidEmailValidationExample,
   resetPasswordValidationExample,
   // Error responses
   userNotFoundResponse,

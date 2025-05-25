@@ -13,7 +13,7 @@ import {
   loginValidationExample,
   refreshTokenValidationExample,
   updateProfileValidationExample,
-  forgotPasswordValidationExample,
+  invalidEmailValidationExample,
   resetPasswordValidationExample,
   userNotFoundResponse,
   credentialsNotVerifiedResponse,
@@ -190,7 +190,7 @@ export const registerAuthPaths = () => {
         content: {
           "application/json": {
             schema: ErrorSchema,
-            example: forgotPasswordValidationExample,
+            example: invalidEmailValidationExample,
           },
         },
       },

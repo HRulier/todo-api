@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import jwt, { Secret } from "jsonwebtoken";
+import passport from "passport";
 import dotEnvConfig from "~/config/dot-env";
 import HTTP_STATUS from "~/utils/http_status";
 import {
@@ -110,6 +111,45 @@ async function login(req: IAuthentificateRequest, res: Response) {
   }
 }
 
+async function loginWithGoogle(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  passport.authenticate("google", {
+    session: false,
+    scope: ["email", "profile"],
+  })(req, res, next);
+}
+
+async function loginWithGoogleCallback(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  passport.authenticate("google", { session: false }, (err, data) => {
+    if (err || !data) {
+      return res.redirect(
+        `${process.env.FRONT_URL}/signin?error=auth_google_failed`
+      );
+    }
+    const { token, refreshToken } = data;
+
+    // Secure true for production, secure: true need https
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      // sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      // path: "/api/auth/refresh-token", // Limitation du cookie à la route de refresh
+    });
+
+    return res.redirect(
+      `${process.env.FRONT_URL}/auth-google-success?token=${token}`
+    );
+  })(req, res, next);
+}
+
 async function refresh(req: IAuthentificateRequest, res: Response) {
   try {
     const { refreshToken } = req.cookies;
@@ -161,6 +201,8 @@ async function logout(req: IAuthentificateRequest, res: Response) {
 
     await user.set({ refreshToken: null });
     await user.save();
+
+    res.clearCookie("refreshToken");
 
     return res.status(HTTP_STATUS.OK).json({
       message: "Logout success",
@@ -364,6 +406,8 @@ async function updateProfile(req: IAuthentificateRequest, res: Response) {
 const AuthController: IAuthController = {
   register,
   login,
+  loginWithGoogle,
+  loginWithGoogleCallback,
   refresh,
   logout,
   forgotPassword,

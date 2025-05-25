@@ -25,6 +25,11 @@ authRoutes.post(
   AuthController.login
 );
 
+//Google OAuth2 endpoints
+authRoutes.get("/google", AuthController.loginWithGoogle);
+authRoutes.get("/google/callback", AuthController.loginWithGoogleCallback);
+// **** //
+
 authRoutes.post(
   "/refresh-token",
   validateRequest(z.object({ refreshToken: z.string() }), {
