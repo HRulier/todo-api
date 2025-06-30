@@ -34,6 +34,10 @@ const invalidResetPasswordDataExample = {
   pwd: "test",
 };
 
+const invalidChangePasswordDataExample = {
+  currentPassword: "test",
+};
+
 const invalidUpdateProfileDataExample = { profile: { firstName: null } };
 
 // -------------------------------------
@@ -66,8 +70,13 @@ const invalidEmailValidationExample = generateZodValidationErrorExample(
 );
 
 const resetPasswordValidationExample = generateZodValidationErrorExample(
-  UserSchema.pick({ password: true }),
+  z.object({ password: z.string() }),
   invalidResetPasswordDataExample
+);
+
+const changePasswordValidationExample = generateZodValidationErrorExample(
+  z.object({ currentPassword: z.string(), newPassword: z.string() }),
+  invalidChangePasswordDataExample
 );
 
 // -------------------------------------
@@ -130,6 +139,7 @@ export {
   updateProfileValidationExample,
   invalidEmailValidationExample,
   resetPasswordValidationExample,
+  changePasswordValidationExample,
   // Error responses
   userNotFoundResponse,
   credentialsNotVerifiedResponse,

@@ -298,6 +298,32 @@ async function resetPasswordRedirect(req: Request, res: Response) {
   }
 }
 
+async function changePassword(req: IAuthentificateRequest, res: Response) {
+  try {
+    const user = req.user as IUser;
+
+    const { newPassword, currentPassword } = req.body;
+
+    const passwordMatch = await user.comparePassword(currentPassword);
+
+    if (!passwordMatch) {
+      throw new CustomError(
+        "Current password is incorrect",
+        HTTP_STATUS.UNPROCESSABLE_ENTITY
+      );
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: "Your password has been changed." });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
 async function verifiedUserEmail(req: Request, res: Response) {
   try {
     const user = await User.findOne({
@@ -413,6 +439,7 @@ const AuthController: IAuthController = {
   forgotPassword,
   resetPassword,
   resetPasswordRedirect,
+  changePassword,
   verifiedUserEmail,
   resendVerificationEmail,
   getProfile,

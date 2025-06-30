@@ -66,6 +66,15 @@ authRoutes.get(
   AuthController.resetPasswordRedirect
 );
 
+authRoutes.post(
+  "/change-password",
+  requireAuth,
+  validateRequest(
+    z.object({ currentPassword: z.string(), newPassword: z.string() })
+  ),
+  AuthController.changePassword
+);
+
 authRoutes.get(
   "/verified-email/:token",
   validateRequest(z.object({ token: z.string() }), {

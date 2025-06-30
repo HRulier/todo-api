@@ -15,6 +15,7 @@ import {
   updateProfileValidationExample,
   invalidEmailValidationExample,
   resetPasswordValidationExample,
+  changePasswordValidationExample,
   userNotFoundResponse,
   credentialsNotVerifiedResponse,
   invalidRefreshTokenResponse,
@@ -199,7 +200,7 @@ export const registerAuthPaths = () => {
     },
   });
 
-  // POST /auth/reset-password
+  // POST /auth/reset-password/{token}
   registry.registerPath({
     method: "post",
     path: "/auth/reset-password/{token}",
@@ -265,6 +266,60 @@ export const registerAuthPaths = () => {
         description:
           "Redirect user to /reset-password/:token page, if token expired to /reset-password (without token, mean token expired)",
       },
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  // POST /auth/change-password
+  registry.registerPath({
+    method: "post",
+    path: "/auth/change-password",
+    tags: ["Authentication"],
+    security: [{ bearerAuth: [] }],
+    summary: "Change password",
+    description: "Authenticated user change is current password",
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: z.object({
+              currentPassword: z
+                .string()
+                .nullish()
+                .openapi({ example: "Test!abc432" }),
+              newPassword: z
+                .string()
+                .nullish()
+                .openapi({ example: "Test!abc432" }),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description:
+          "User password has been changed. The user's password has been successfully updated.",
+        content: {
+          "application/json": {
+            schema: z.object({
+              message: z.string().openapi({
+                example: "Your password has been changed.",
+              }),
+            }),
+          },
+        },
+      },
+      [HTTP_STATUS.BAD_REQUEST]: {
+        description: "Bad request - Validation error",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+            example: changePasswordValidationExample,
+          },
+        },
+      },
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
