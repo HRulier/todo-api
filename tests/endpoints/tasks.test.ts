@@ -1,4 +1,5 @@
 import request from "supertest";
+import { format } from "date-fns";
 import app from "../../src/server";
 import User from "../../src/models/user";
 import Task from "../../src/models/task";
@@ -14,7 +15,7 @@ let credentials: any = {};
 const getTestTasks = (userId: string) => [
   {
     description: "Préparer la présentation pour la réunion client",
-    date: "2025-06-30T14:30:00.000+00:00",
+    date: "2025-06-27T14:30:00.000+00:00",
     completed: false,
     user: userId,
   },
@@ -32,7 +33,7 @@ const getTestTasks = (userId: string) => [
   },
   {
     description: "Appeler le médecin pour prendre rendez-vous",
-    date: "2025-07-05T11:15:00.000+00:00",
+    date: "2025-07-03T11:15:00.000+00:00",
     completed: true,
     user: userId,
   },
@@ -102,7 +103,7 @@ describe("Tasks endpoints tests", () => {
       .set("Accept", "application/json");
   });
 
-  describe("GetAllTasks", () => {
+  describe("GetTasks", () => {
     it("Should return all tasks for the authenticated user", async () => {
       const {
         status,
@@ -123,12 +124,62 @@ describe("Tasks endpoints tests", () => {
         status,
         body: { tasks },
       } = await request(app)
-        .get("/api/tasks?completed=true")
+        .get("/api/tasks?completed")
         .set("Authorization", `Bearer ${credentials.token}`);
 
       expect(status).toBe(200);
       expect(tasks.length).toBe(3);
       expect(tasks.every((task: TaskDocument) => task.completed)).toBe(true);
+    });
+
+    it("Should return not completed tasks for the authenticated user", async () => {
+      const {
+        status,
+        body: { tasks },
+      } = await request(app)
+        .get("/api/tasks?completed=false")
+        .set("Authorization", `Bearer ${credentials.token}`);
+
+      expect(status).toBe(200);
+      expect(tasks.length).toBe(3);
+      expect(tasks.every((task: TaskDocument) => !task.completed)).toBe(true);
+    });
+
+    it("Should return planned tasks on day the 2025-07-03 for the authenticated user", async () => {
+      const date = "2025-07-03";
+      const {
+        status,
+        body: { tasks },
+      } = await request(app)
+        .get(`/api/tasks?minDate=${date}&maxDate=${date}`)
+        .set("Authorization", `Bearer ${credentials.token}`);
+
+      expect(status).toBe(200);
+      expect(tasks.length).toBe(2);
+      expect(
+        tasks.every(
+          (task: TaskDocument) => format(task.date, "yyyy-MM-dd") === date
+        )
+      ).toBe(true);
+    });
+
+    it("Should return planned tasks between 2025-06-30 and 2025-07-06 for the authenticated user", async () => {
+      const minDate = "2025-06-30";
+      const maxDate = "2025-07-06";
+      const {
+        status,
+        body: { tasks },
+      } = await request(app)
+        .get(`/api/tasks?minDate=${minDate}&maxDate=${maxDate}`)
+        .set("Authorization", `Bearer ${credentials.token}`);
+
+      expect(status).toBe(200);
+      expect(tasks.length).toBe(3);
+      // expect(
+      //   tasks.every(
+      //     (task: TaskDocument) => format(task.date, "yyyy-MM-dd") === date
+      //   )
+      // ).toBe(true);
     });
   });
 

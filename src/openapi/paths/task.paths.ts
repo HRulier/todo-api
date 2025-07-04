@@ -39,6 +39,32 @@ export const registerTaskPaths = () => {
           example: "true",
         },
       },
+      {
+        name: "minDate",
+        in: "query",
+        description:
+          "Filter tasks from this date (inclusive). Format: YYYY-MM-DD",
+        required: false,
+        schema: {
+          type: "string",
+          format: "date",
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+          example: "2025-01-01",
+        },
+      },
+      {
+        name: "maxDate",
+        in: "query",
+        description:
+          "Filter tasks until this date (inclusive). Format: YYYY-MM-DD",
+        required: false,
+        schema: {
+          type: "string",
+          format: "date",
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+          example: "2025-12-31",
+        },
+      },
     ],
     responses: {
       [HTTP_STATUS.OK]: {
@@ -51,7 +77,6 @@ export const registerTaskPaths = () => {
           },
         },
       },
-      [HTTP_STATUS.NOT_FOUND]: taskNotFoundResponse,
       [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },

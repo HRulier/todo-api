@@ -1,6 +1,7 @@
 import { Response } from "express";
 import HTTP_STATUS from "~/utils/http_status";
 import { NotFoundError, handleError } from "~/utils/errors";
+import { isValid, parseISO, startOfDay, endOfDay } from "date-fns";
 import {
   ITaskController,
   CreateTaskInput,
@@ -9,23 +10,41 @@ import {
 import { IAuthentificateRequest } from "~/types/auth";
 import { IUser } from "~/types/users";
 import Task from "~/models/task";
-import { QueryOptions } from "mongoose";
+import { FilterQuery } from "mongoose";
 
 const NotFound = new NotFoundError("The requested task(s) was not found");
 
 async function getTasks(req: IAuthentificateRequest, res: Response) {
   try {
-    let { completed } = req.query;
+    let { completed, minDate, maxDate } = req.query;
     const user = req.user as IUser;
 
-    const query: QueryOptions = { user: user._id };
-    if (completed === "true") query.completed = true;
+    const query: FilterQuery<{
+      user: string;
+      minDate: string;
+      maxDate: string;
+      completed: string;
+    }> = { user: user._id };
+
+    if (typeof completed === "string") {
+      query.completed = !(completed === "false");
+    }
+
+    const parsedMinDate =
+      typeof minDate === "string" ? parseISO(minDate) : null;
+    const parsedMaxDate =
+      typeof maxDate === "string" ? parseISO(maxDate) : null;
+
+    const isMaxDateValid = parsedMaxDate && isValid(parsedMaxDate);
+    const isMinDateValid = parsedMinDate && isValid(parsedMinDate);
+
+    if (isMinDateValid || isMaxDateValid) {
+      query.date = {};
+      if (isMinDateValid) query.date.$gte = startOfDay(parsedMinDate);
+      if (isMaxDateValid) query.date.$lte = endOfDay(parsedMaxDate);
+    }
 
     const tasks = await Task.find(query);
-
-    if (!tasks.length) {
-      throw NotFound;
-    }
 
     return res.status(HTTP_STATUS.OK).json({ tasks });
   } catch (error: unknown) {
