@@ -14,6 +14,7 @@ export type TaskDocument = CreateTaskInput & {
   _id: mongoose.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
+  completed: boolean;
   user: IUser;
 };
 

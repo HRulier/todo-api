@@ -27,6 +27,19 @@ export const registerTaskPaths = () => {
     tags: ["Tasks"],
     summary: "Get all tasks for the authenticated user",
     security: [{ bearerAuth: [] }],
+    parameters: [
+      {
+        name: "completed",
+        in: "query",
+        description: "Filter tasks by completion status",
+        required: false,
+        schema: {
+          type: "string",
+          enum: ["true", "false"],
+          example: "true",
+        },
+      },
+    ],
     responses: {
       [HTTP_STATUS.OK]: {
         description: "List of tasks",

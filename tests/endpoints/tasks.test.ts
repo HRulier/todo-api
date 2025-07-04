@@ -4,43 +4,45 @@ import User from "../../src/models/user";
 import Task from "../../src/models/task";
 import { TaskSchema } from "../../src/schemas/task.schema";
 import { IUser } from "../../src/types/users";
+import { TaskDocument } from "../../src/types/task";
 
 let testTask: any;
 let testTaskUser2: any;
 let user: IUser | any;
 let credentials: any = {};
 
-// const getTestTasks = (user: IUser) => [
-//   {
-//     description: "Préparer la présentation pour la réunion client",
-//     date: "2025-06-30T14:30:00.000+00:00",
-//     completed: false,
-//   },
-//   {
-//     description: "Faire les courses pour le week-end",
-//     date: "2025-07-01T18:45:00.000+00:00",
-//     completed: false,
-//     user: user._id,
-//   },
-//   {
-//     description: "Réviser le code de l'API REST",
-//     date: "2025-07-03T08:20:00.000+00:00",
-//     completed: false,
-//     user: user._id,
-//   },
-//   {
-//     description: "Appeler le médecin pour prendre rendez-vous",
-//     date: "2025-07-05T11:15:00.000+00:00",
-//     completed: false,
-//     user: user._id,
-//   },
-//   {
-//     description: "Nettoyer l'appartement avant l'arrivée des invités",
-//     date: "2025-07-08T21:10:00.000+00:00",
-//     completed: false,
-//     user: user._id,
-//   },
-// ];
+const getTestTasks = (userId: string) => [
+  {
+    description: "Préparer la présentation pour la réunion client",
+    date: "2025-06-30T14:30:00.000+00:00",
+    completed: false,
+    user: userId,
+  },
+  {
+    description: "Faire les courses pour le week-end",
+    date: "2025-07-01T18:45:00.000+00:00",
+    completed: true,
+    user: userId,
+  },
+  {
+    description: "Réviser le code de l'API REST",
+    date: "2025-07-03T08:20:00.000+00:00",
+    completed: true,
+    user: userId,
+  },
+  {
+    description: "Appeler le médecin pour prendre rendez-vous",
+    date: "2025-07-05T11:15:00.000+00:00",
+    completed: true,
+    user: userId,
+  },
+  {
+    description: "Nettoyer l'appartement avant l'arrivée des invités",
+    date: "2025-07-08T21:10:00.000+00:00",
+    completed: false,
+    user: userId,
+  },
+];
 
 describe("Tasks endpoints tests", () => {
   beforeAll(async () => {
@@ -59,6 +61,10 @@ describe("Tasks endpoints tests", () => {
     });
 
     await testTask.save();
+
+    const tasks = getTestTasks(user._id.toString());
+
+    await Task.insertMany(tasks);
 
     testTaskUser2 = new Task({
       description: "Lorem ipsum dolor sit amet",
@@ -96,15 +102,38 @@ describe("Tasks endpoints tests", () => {
       .set("Accept", "application/json");
   });
 
-  // describe("GetAllTasks", () => {
-  //   it("Should return all tasks", () => {
-  //     console.log("test");
-  //   });
-  // });
+  describe("GetAllTasks", () => {
+    it("Should return all tasks for the authenticated user", async () => {
+      const {
+        status,
+        body: { tasks },
+      } = await request(app)
+        .get("/api/tasks")
+        .set("Authorization", `Bearer ${credentials.token}`);
+
+      expect(status).toBe(200);
+      expect(tasks.length).toBe(6);
+      expect(
+        tasks.every((task: TaskDocument) => task.user === user._id.toString())
+      ).toBe(true);
+    });
+
+    it("Should return completed tasks for the authenticated user", async () => {
+      const {
+        status,
+        body: { tasks },
+      } = await request(app)
+        .get("/api/tasks?completed=true")
+        .set("Authorization", `Bearer ${credentials.token}`);
+
+      expect(status).toBe(200);
+      expect(tasks.length).toBe(3);
+      expect(tasks.every((task: TaskDocument) => task.completed)).toBe(true);
+    });
+  });
 
   describe("CreateTask", () => {
     it("Should create a task", async () => {
-      console.log(credentials);
       const newTask = {
         description: "Lorem ipsum dolor sit amet",
         date: "2025-03-03T14:55:26.078+00:00",

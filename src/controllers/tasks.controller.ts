@@ -9,13 +9,19 @@ import {
 import { IAuthentificateRequest } from "~/types/auth";
 import { IUser } from "~/types/users";
 import Task from "~/models/task";
+import { QueryOptions } from "mongoose";
 
 const NotFound = new NotFoundError("The requested task(s) was not found");
 
 async function getTasks(req: IAuthentificateRequest, res: Response) {
   try {
+    let { completed } = req.query;
     const user = req.user as IUser;
-    const tasks = await Task.find({ user: user._id });
+
+    const query: QueryOptions = { user: user._id };
+    if (completed === "true") query.completed = true;
+
+    const tasks = await Task.find(query);
 
     if (!tasks.length) {
       throw NotFound;
