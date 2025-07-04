@@ -7,8 +7,6 @@ dotenv.config(configDotenv);
 // Increase timeout for jest tests
 jest.setTimeout(10000);
 
-console.log("test");
-
 // Global hooks for Jest
 beforeAll(async () => {
   try {
@@ -22,6 +20,7 @@ beforeAll(async () => {
     const user = new User({
       email: "test@test.fr",
       password: "?testtest321!",
+      isVerified: true,
       profile: {
         firstName: "test",
         lastName: "test",
@@ -34,6 +33,7 @@ beforeAll(async () => {
     const user2 = new User({
       email: "test2@test.fr",
       password: "?testtest321!",
+      isVerified: true,
       profile: {
         firstName: "test",
         lastName: "test",
