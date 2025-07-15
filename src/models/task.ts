@@ -20,6 +20,10 @@ const TaskSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    position: {
+      type: Number,
+      default: 1024,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",

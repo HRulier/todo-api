@@ -202,19 +202,20 @@ describe("Tasks endpoints tests", () => {
       expect(status).toBe(201);
       expect(task.user).toBe(user._id.toString());
       expect(task.completed).toBe(false);
+      expect(typeof task.position).toBe("number");
 
       const validation = TaskSchema.safeParse(task);
       expect(validation.success).toBe(true);
     });
 
     it("should return 400, invalid data", async () => {
-      const newProduct = {
+      const newTask = {
         date: "2025-03-03T14:55:26.078+00:00",
       };
 
       const { status, body } = await request(app)
         .post("/api/tasks")
-        .send(newProduct)
+        .send(newTask)
         .set("Authorization", `Bearer ${credentials.token}`)
         .set("Accept", "application/json");
 

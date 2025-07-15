@@ -72,10 +72,21 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const createData: CreateTaskInput = req.body;
+    let { position = 1024, date } = createData;
+
+    if (position === 1024) {
+      const minPositionTask = await Task.findOne({
+        user: user._id,
+        date,
+      }).sort({ position: 1 });
+
+      if (minPositionTask) position = minPositionTask.position - 1;
+    }
 
     const task = new Task({
       ...createData,
       user: user._id,
+      position,
     });
     await task.save();
 

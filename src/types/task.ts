@@ -15,6 +15,7 @@ export type TaskDocument = CreateTaskInput & {
   createdAt?: Date;
   updatedAt?: Date;
   completed: boolean;
+  position: number;
   user: IUser;
 };
 
