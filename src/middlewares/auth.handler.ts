@@ -28,12 +28,13 @@ const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate(
     "jwt",
     { session: false },
-    (err: any, user: any, info: any) => {
+    // (err: any, user: any, info: any) => {
+    (err: any, user: any) => {
       if (err) return next(err); // Handle unexpected errors
 
-      if (info?.message && process.env.NODE_ENV !== "production") {
-        console.log(`JsonWebTokenError: ${info.message}`);
-      }
+      // if (info?.message && process.env.NODE_ENV !== "production") {
+      //   console.log(`JsonWebTokenError: ${info.message}`);
+      // }
 
       if (!user) {
         return res.status(401).json({

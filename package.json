@@ -8,7 +8,7 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
     "test": "jest --detectOpenHandles",
-    "test:watch": "jest --watchAll",
+    "test:watch": "jest --watchAll --detectOpenHandles --forceExit",
     "test:coverage": "jest --coverage"
   },
   "repository": {

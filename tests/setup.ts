@@ -7,6 +7,26 @@ dotenv.config(configDotenv);
 // Increase timeout for jest tests
 jest.setTimeout(10000);
 
+const user = {
+  email: "test@test.fr",
+  password: "?testtest321!",
+  isVerified: true,
+  profile: {
+    firstName: "test",
+    lastName: "test",
+  },
+};
+
+const user2 = {
+  email: "test2@test.fr",
+  password: "?testtest321!",
+  isVerified: true,
+  profile: {
+    firstName: "test",
+    lastName: "test",
+  },
+};
+
 // Global hooks for Jest
 beforeAll(async () => {
   try {
@@ -14,33 +34,15 @@ beforeAll(async () => {
     await mongoose.connect(
       `mongodb://127.0.0.1:27017/${process.env.TEST_DATABASE_NAME}`
     );
-    console.log("Connected to MongoDb");
+    // console.log("Connected to MongoDb");
 
-    // Create a user for test
-    const user = new User({
-      email: "test@test.fr",
-      password: "?testtest321!",
-      isVerified: true,
-      profile: {
-        firstName: "test",
-        lastName: "test",
-      },
-    });
+    await mongoose.connection.dropDatabase();
 
-    await user.save();
+    const newUser = new User(user);
+    await newUser.save();
 
-    // Create a user for test
-    const user2 = new User({
-      email: "test2@test.fr",
-      password: "?testtest321!",
-      isVerified: true,
-      profile: {
-        firstName: "test",
-        lastName: "test",
-      },
-    });
-
-    await user2.save();
+    const newUser2 = new User(user2);
+    await newUser2.save();
   } catch (error) {
     console.log("Can't connected to MongoDb");
     console.error(error);
