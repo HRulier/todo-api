@@ -181,6 +181,17 @@ describe("Tasks endpoints tests", () => {
       //   )
       // ).toBe(true);
     });
+
+    it("Should return 400, invalid query data", async () => {
+      const minDate = "name";
+      const { status, body } = await request(app)
+        .get(`/api/tasks?minDate=${minDate}`)
+        .set("Authorization", `Bearer ${credentials.token}`);
+
+      expect(status).toBe(400);
+      expect(body.status).toBe("error");
+      expect(body.message).toBe("Validation failed");
+    });
   });
 
   describe("CreateTask", () => {

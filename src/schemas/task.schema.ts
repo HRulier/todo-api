@@ -22,6 +22,20 @@ const TaskSchema = z.object({
   updatedAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
 });
 
+const GetTasksQuerySchema = z.object({
+  minDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+    .nullish()
+    .openapi({ example: "2025-07-03" }),
+  maxDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+    .nullish()
+    .openapi({ example: "2025-07-03" }),
+  completed: z.string().nullish().openapi({ example: "false" }),
+});
+
 const CreateTaskSchema = z.object({
   dueDate: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
   position: z.number().nullish().openapi({ example: 1024 }),
@@ -35,4 +49,4 @@ const UpdateTaskSchema = CreateTaskSchema.partial().extend({
 
 registry.register("Task", TaskSchema);
 
-export { TaskSchema, CreateTaskSchema, UpdateTaskSchema };
+export { TaskSchema, CreateTaskSchema, UpdateTaskSchema, GetTasksQuerySchema };
