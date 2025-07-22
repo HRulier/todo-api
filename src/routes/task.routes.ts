@@ -12,29 +12,28 @@ tasksRoutes.get("/", requireAuth, TaskController.getTasks);
 tasksRoutes.get(
   "/:id",
   requireAuth,
-  validateRequest(IdSchema, { source: "params" }),
+  validateRequest({ params: IdSchema }),
   TaskController.getTaskById
 );
 
 tasksRoutes.post(
   "/",
   requireAuth,
-  validateRequest(CreateTaskSchema),
+  validateRequest({ body: CreateTaskSchema }),
   TaskController.createTask
 );
 
 tasksRoutes.put(
   "/:id",
   requireAuth,
-  validateRequest(IdSchema, { source: "params" }),
-  validateRequest(UpdateTaskSchema),
+  validateRequest({ params: IdSchema, body: UpdateTaskSchema }),
   TaskController.updateTask
 );
 
 tasksRoutes.delete(
   "/:id",
   requireAuth,
-  validateRequest(IdSchema, { source: "params" }),
+  validateRequest({ params: IdSchema }),
   TaskController.deleteTask
 );
 

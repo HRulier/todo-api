@@ -4,23 +4,24 @@ import HTTP_STATUS from "~/utils/http_status";
 
 type ValidationSource = "body" | "query" | "params" | "headers" | "cookies";
 
-type ValidationOptions = {
-  source?: ValidationSource | ValidationSource[];
+type ValidationSchemas = {
+  body?: AnyZodObject;
+  query?: AnyZodObject;
+  params?: AnyZodObject;
+  headers?: AnyZodObject;
+  cookies?: AnyZodObject;
 };
+
 const validateRequest = (
-  schema: AnyZodObject,
-  options: ValidationOptions = {}
+  schemas: ValidationSchemas
 ): ((req: Request, res: Response, next: NextFunction) => void) => {
-  const { source = "body" } = options;
-
-
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      const sources = Array.isArray(source) ? source : [source];
-      sources.forEach((src) => {
-        if (req[src]) {
+      // Validate each source that has a schema
+      Object.entries(schemas).forEach(([source, schema]) => {
+        if (schema && req[source as ValidationSource]) {
           // Parse and validate the data
-          req[src] = schema.parse(req[src]);
+          req[source as ValidationSource] = schema.parse(req[source as ValidationSource]);
         }
       });
 

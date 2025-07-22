@@ -12,15 +12,15 @@ const authRoutes = Router();
 
 authRoutes.post(
   "/register",
-  validateRequest(RegisterUserSchema),
+  validateRequest({ body: RegisterUserSchema }),
   AuthController.register
 );
 
 authRoutes.post(
   "/login",
-  validateRequest(
-    z.object({ email: z.string().email(), password: z.string() })
-  ),
+  validateRequest({
+    body: z.object({ email: z.string().email(), password: z.string() }),
+  }),
   requireLogin,
   AuthController.login
 );
@@ -32,36 +32,36 @@ authRoutes.get("/google/callback", AuthController.loginWithGoogleCallback);
 
 authRoutes.post(
   "/refresh-token",
-  validateRequest(z.object({ refreshToken: z.string() }), {
-    source: "cookies",
+  validateRequest({
+    cookies: z.object({ refreshToken: z.string() }),
   }),
   AuthController.refresh
 );
 
 authRoutes.get(
   "/logout",
-  validateRequest(z.object({ refreshToken: z.string() }), {
-    source: "cookies",
+  validateRequest({
+    cookies: z.object({ refreshToken: z.string() }),
   }),
   AuthController.logout
 );
 
 authRoutes.post(
   "/forgot-password",
-  validateRequest(z.object({ email: z.string().email() })),
+  validateRequest({ body: z.object({ email: z.string().email() }) }),
   AuthController.forgotPassword
 );
 
 authRoutes.post(
   "/reset-password/:token",
-  validateRequest(z.object({ password: z.string() })),
+  validateRequest({ body: z.object({ password: z.string() }) }),
   AuthController.resetPassword
 );
 
 authRoutes.get(
   "/reset-password/redirect/:token",
-  validateRequest(z.object({ token: z.string() }), {
-    source: "params",
+  validateRequest({
+    params: z.object({ token: z.string() }),
   }),
   AuthController.resetPasswordRedirect
 );
@@ -69,23 +69,23 @@ authRoutes.get(
 authRoutes.post(
   "/change-password",
   requireAuth,
-  validateRequest(
-    z.object({ currentPassword: z.string(), newPassword: z.string() })
-  ),
+  validateRequest({
+    body: z.object({ currentPassword: z.string(), newPassword: z.string() }),
+  }),
   AuthController.changePassword
 );
 
 authRoutes.get(
   "/verified-email/:token",
-  validateRequest(z.object({ token: z.string() }), {
-    source: "params",
+  validateRequest({
+    params: z.object({ token: z.string() }),
   }),
   AuthController.verifiedUserEmail
 );
 
 authRoutes.post(
   "/resend-verification-email",
-  validateRequest(z.object({ email: z.string().email() })),
+  validateRequest({ body: z.object({ email: z.string().email() }) }),
   AuthController.resendVerificationEmail
 );
 
@@ -93,7 +93,7 @@ authRoutes.get("/profile", requireAuth, AuthController.getProfile);
 
 authRoutes.put(
   "/profile",
-  validateRequest(UpdateUserProfileSchema),
+  validateRequest({ body: UpdateUserProfileSchema }),
   requireAuth,
   AuthController.updateProfile
 );
