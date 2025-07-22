@@ -1,7 +1,7 @@
 import registry from "~/openapi/registry";
 import z from "~/utils/zod/zod-extended";
 
-const CategorySchema = z.object({
+const TagSchema = z.object({
   _id: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ID")
@@ -20,6 +20,7 @@ const CategorySchema = z.object({
   updatedAt: z.coerce.date().openapi({ example: "2025-07-18T14:55:37.403Z" }),
 });
 
-registry.register("Category", CategorySchema);
+const CreateTagSchema = TagSchema.pick({ label: true });
+registry.register("Tag", TagSchema);
 
-export { CategorySchema };
+export { TagSchema, CreateTagSchema };

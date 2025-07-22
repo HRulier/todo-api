@@ -10,6 +10,7 @@ import {
   taskNotFoundResponse,
   taskIdValidationExample,
   taskValidationExample,
+  getTasksValidationExample,
 } from "../examples/task.examples";
 import { ErrorSchema } from "~/schemas/error.schema";
 import {
@@ -74,6 +75,15 @@ export const registerTaskPaths = () => {
             schema: z.object({
               tasks: z.array(TaskSchema),
             }),
+          },
+        },
+      },
+      [HTTP_STATUS.BAD_REQUEST]: {
+        description: "Validation error - Invalid query params",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+            example: getTasksValidationExample,
           },
         },
       },

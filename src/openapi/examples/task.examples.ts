@@ -19,7 +19,7 @@ const invalidTaskExample = {
 };
 
 const invalidGetTasksQueryExample = {
-  dueDate: "date",
+  minDate: "date",
 };
 
 // -------------------------------------

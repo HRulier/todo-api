@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import { CategoryDocument } from "~/types/category";
+import { TagDocument } from "~/types/tag";
 const Schema = mongoose.Schema;
 
 //= ===============================
-// Category Schema
+// Tag Schema
 //= ===============================
 
-const CategorySchema = new Schema(
+const TagSchema = new Schema(
   {
     label: {
       type: String,
@@ -27,4 +27,4 @@ const CategorySchema = new Schema(
   }
 );
 
-export default mongoose.model<CategoryDocument>("Category", CategorySchema);
+export default mongoose.model<TagDocument>("Tag", TagSchema);
