@@ -12,6 +12,12 @@ const tagNotFoundResponse = getErrorResponseConfig("Tag not found", {
   errors: [],
 });
 
+const tagAlreadyExistsResponse = getErrorResponseConfig("Tag already exists", {
+  status: "error",
+  message: "Tag already exists",
+  errors: [],
+});
+
 const invalidTagExample = {
   label: 100,
 };
@@ -30,4 +36,5 @@ export {
   tagValidationExample,
   // Error responses
   tagNotFoundResponse,
+  tagAlreadyExistsResponse,
 };

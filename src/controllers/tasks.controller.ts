@@ -14,6 +14,13 @@ import { FilterQuery } from "mongoose";
 
 const NotFound = new NotFoundError("The requested task(s) was not found");
 
+const populateTask = [
+  {
+    path: "tags",
+    select: "_id label color",
+  },
+];
+
 async function getTasks(req: IAuthentificateRequest, res: Response) {
   try {
     let { completed, minDate, maxDate } = req.query;
@@ -44,7 +51,7 @@ async function getTasks(req: IAuthentificateRequest, res: Response) {
       if (isMaxDateValid) query.dueDate.$lte = endOfDay(parsedMaxDate);
     }
 
-    const tasks = await Task.find(query);
+    const tasks = await Task.find(query).populate(populateTask);
 
     return res.status(HTTP_STATUS.OK).json({ tasks });
   } catch (error: unknown) {
@@ -56,7 +63,9 @@ async function getTaskById(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const { id } = req.params;
-    const task = await Task.findOne({ _id: id, user: user._id });
+    const task = await Task.findOne({ _id: id, user: user._id }).populate(
+      populateTask
+    );
 
     if (!task) {
       throw NotFound;
@@ -72,7 +81,7 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const createData: CreateTaskInput = req.body;
-    let { position = 1024, dueDate } = createData;
+    let { position = 1024, dueDate, tags = [] } = createData;
 
     if (position === 1024) {
       const minPositionTask = await Task.findOne({
@@ -87,8 +96,11 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
       ...createData,
       user: user._id,
       position,
+      tags,
     });
     await task.save();
+
+    await Task.populate(task, populateTask);
 
     return res.status(HTTP_STATUS.CREATED).json({ task });
   } catch (error: unknown) {
@@ -108,7 +120,7 @@ async function updateTask(req: IAuthentificateRequest, res: Response) {
       {
         new: true,
       }
-    );
+    ).populate(populateTask);
 
     if (!task) {
       throw NotFound;

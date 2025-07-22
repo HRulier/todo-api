@@ -1,6 +1,8 @@
 import registry from "~/openapi/registry";
 import z from "~/utils/zod/zod-extended";
+import { TagSchema } from "./tag.schema";
 
+//* Use as response schema for GET POST PUT /tasks
 const TaskSchema = z.object({
   _id: z
     .string()
@@ -18,6 +20,7 @@ const TaskSchema = z.object({
     .openapi({
       example: "67c5c2e9656ca8c7f95f7d52",
     }),
+  tags: z.array(TagSchema.pick({ _id: true, label: true, color: true })),
   createdAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
   updatedAt: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
 });
@@ -40,6 +43,12 @@ const CreateTaskSchema = z.object({
   dueDate: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
   position: z.number().nullish().openapi({ example: 1024 }),
   description: z.string().openapi({ example: "Lorem ipsum dolor sit amet" }),
+  tags: z
+    .array(z.string())
+    .nullish()
+    .openapi({
+      example: ["67c5c2e9656ca8c7f95f7d52", "67c5c2e9656ca8c7f95f7d60"],
+    }),
 });
 
 // Set fields as optional for update

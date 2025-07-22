@@ -1,13 +1,10 @@
 import registry from "../registry";
 import z from "~/utils/zod/zod-extended";
 import HTTP_STATUS from "~/utils/http_status";
+import { TagSchema, CreateTagSchema } from "~/schemas/tag.schema";
 import {
-  TagSchema,
-  CreateTagSchema,
-} from "~/schemas/tag.schema";
-import {
-  tagNotFoundResponse,
   tagValidationExample,
+  tagAlreadyExistsResponse,
 } from "../examples/tag.examples";
 import { ErrorSchema } from "~/schemas/error.schema";
 import {
@@ -74,6 +71,7 @@ export const registerTagPaths = () => {
           },
         },
       },
+      [HTTP_STATUS.CONFLICT]: tagAlreadyExistsResponse,
       [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },

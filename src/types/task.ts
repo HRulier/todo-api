@@ -17,6 +17,7 @@ export type TaskDocument = CreateTaskInput & {
   completed: boolean;
   position: number;
   user: IUser;
+  tags: TaskDocument[];
 };
 
 export interface ITaskController {

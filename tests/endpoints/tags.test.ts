@@ -97,5 +97,27 @@ describe("Tags endpoints tests", () => {
       expect(body.status).toBe("error");
       expect(body.message).toBe("Validation failed");
     });
+
+    it("should return 409, conflict", async () => {
+      await request(app)
+        .post("/api/tags")
+        .send({
+          label: "Tag duplicated",
+        })
+        .set("Authorization", `Bearer ${credentials.token}`)
+        .set("Accept", "application/json");
+
+      const { status, body } = await request(app)
+        .post("/api/tags")
+        .send({
+          label: "Tag duplicated",
+        })
+        .set("Authorization", `Bearer ${credentials.token}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(409);
+      expect(body.status).toBe("error");
+      expect(body.message).toBe("Tag already exists");
+    });
   });
 });

@@ -11,6 +11,7 @@ const TagSchema = new Schema(
     label: {
       type: String,
       required: true,
+      unique: true,
     },
     color: {
       type: String,
