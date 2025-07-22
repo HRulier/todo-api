@@ -15,7 +15,7 @@ const taskNotFoundResponse = getErrorResponseConfig("Task not found", {
 
 const invalidTaskExample = {
   description: 10,
-  date: "date",
+  dueDate: "date",
 };
 
 // -------------------------------------

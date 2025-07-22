@@ -9,7 +9,7 @@ const TaskSchema = z.object({
       example: "67c5c2e9656ca8c7f95f7d52",
     }),
   description: z.string().openapi({ example: "Lorem ipsum dolor sit amet" }),
-  date: z.coerce.date().openapi({ example: "2025-03-03T14:55:26.078Z" }),
+  dueDate: z.coerce.date().openapi({ example: "2025-03-03T14:55:26.078Z" }),
   completed: z.boolean().default(false).openapi({ example: false }),
   position: z.number().default(1024).openapi({ example: 1024 }),
   user: z
@@ -23,7 +23,7 @@ const TaskSchema = z.object({
 });
 
 const CreateTaskSchema = z.object({
-  date: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
+  dueDate: z.coerce.date().openapi({ example: "2025-03-03T14:55:37.403Z" }),
   position: z.number().nullish().openapi({ example: 1024 }),
   description: z.string().openapi({ example: "Lorem ipsum dolor sit amet" }),
 });

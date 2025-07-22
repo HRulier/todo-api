@@ -15,31 +15,31 @@ let credentials: any = {};
 const getTestTasks = (userId: string) => [
   {
     description: "Préparer la présentation pour la réunion client",
-    date: "2025-06-27T14:30:00.000+00:00",
+    dueDate: "2025-06-27T14:30:00.000+00:00",
     completed: false,
     user: userId,
   },
   {
     description: "Faire les courses pour le week-end",
-    date: "2025-07-01T18:45:00.000+00:00",
+    dueDate: "2025-07-01T18:45:00.000+00:00",
     completed: true,
     user: userId,
   },
   {
     description: "Réviser le code de l'API REST",
-    date: "2025-07-03T08:20:00.000+00:00",
+    dueDate: "2025-07-03T08:20:00.000+00:00",
     completed: true,
     user: userId,
   },
   {
     description: "Appeler le médecin pour prendre rendez-vous",
-    date: "2025-07-03T11:15:00.000+00:00",
+    dueDate: "2025-07-03T11:15:00.000+00:00",
     completed: true,
     user: userId,
   },
   {
     description: "Nettoyer l'appartement avant l'arrivée des invités",
-    date: "2025-07-08T21:10:00.000+00:00",
+    dueDate: "2025-07-08T21:10:00.000+00:00",
     completed: false,
     user: userId,
   },
@@ -56,7 +56,7 @@ describe("Tasks endpoints tests", () => {
 
     testTask = new Task({
       description: "Lorem ipsum dolor sit amet",
-      date: "2025-03-03T14:55:26.078+00:00",
+      dueDate: "2025-03-03T14:55:26.078+00:00",
       done: false,
       user: user._id,
     });
@@ -69,7 +69,7 @@ describe("Tasks endpoints tests", () => {
 
     testTaskUser2 = new Task({
       description: "Lorem ipsum dolor sit amet",
-      date: "2025-03-03T14:55:26.078+00:00",
+      dueDate: "2025-03-03T14:55:26.078+00:00",
       done: false,
       user: user2._id,
     });
@@ -158,7 +158,7 @@ describe("Tasks endpoints tests", () => {
       expect(tasks.length).toBe(2);
       expect(
         tasks.every(
-          (task: TaskDocument) => format(task.date, "yyyy-MM-dd") === date
+          (task: TaskDocument) => format(task.dueDate, "yyyy-MM-dd") === date
         )
       ).toBe(true);
     });
@@ -187,7 +187,7 @@ describe("Tasks endpoints tests", () => {
     it("Should create a task", async () => {
       const newTask = {
         description: "Lorem ipsum dolor sit amet",
-        date: "2025-03-03T14:55:26.078+00:00",
+        dueDate: "2025-03-03T14:55:26.078+00:00",
       };
 
       const {
@@ -210,7 +210,7 @@ describe("Tasks endpoints tests", () => {
 
     it("should return 400, invalid data", async () => {
       const newTask = {
-        date: "2025-03-03T14:55:26.078+00:00",
+        dueDate: "2025-03-03T14:55:26.078+00:00",
       };
 
       const { status, body } = await request(app)

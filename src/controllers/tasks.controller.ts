@@ -39,9 +39,9 @@ async function getTasks(req: IAuthentificateRequest, res: Response) {
     const isMinDateValid = parsedMinDate && isValid(parsedMinDate);
 
     if (isMinDateValid || isMaxDateValid) {
-      query.date = {};
-      if (isMinDateValid) query.date.$gte = startOfDay(parsedMinDate);
-      if (isMaxDateValid) query.date.$lte = endOfDay(parsedMaxDate);
+      query.dueDate = {};
+      if (isMinDateValid) query.dueDate.$gte = startOfDay(parsedMinDate);
+      if (isMaxDateValid) query.dueDate.$lte = endOfDay(parsedMaxDate);
     }
 
     const tasks = await Task.find(query);
@@ -72,12 +72,12 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const createData: CreateTaskInput = req.body;
-    let { position = 1024, date } = createData;
+    let { position = 1024, dueDate } = createData;
 
     if (position === 1024) {
       const minPositionTask = await Task.findOne({
         user: user._id,
-        date,
+        dueDate,
       }).sort({ position: 1 });
 
       if (minPositionTask) position = minPositionTask.position - 1;
