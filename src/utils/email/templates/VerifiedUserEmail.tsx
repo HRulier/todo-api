@@ -98,7 +98,7 @@ const content = {
 };
 
 const header = {
-  padding: "30px",
+  padding: "15px",
 };
 
 const sectionsBorders = {

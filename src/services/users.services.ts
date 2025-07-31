@@ -82,7 +82,16 @@ const sendDailyEmailToUsers = async () => {
       $gte: startOfDay(today),
       $lte: endOfDay(today),
     },
-  }).populate("tags user");
+  }).populate([
+    {
+      path: "tags",
+      select: "_id label color",
+    },
+    {
+      path: "user",
+      select: "_id email profile",
+    },
+  ]);
 
   const idToEmails = users.reduce((acc: any, user: any) => {
     acc[user._id] = user.email;
@@ -104,6 +113,8 @@ const sendDailyEmailToUsers = async () => {
   const emails = Object.entries(groupedTasks).map(([email, tasks]) => {
     const username =
       tasks[0].user.profile.firstName + " " + tasks[0].user.profile.lastName;
+
+    console.log(JSON.stringify(tasks, null, 2));
 
     const subject = `${tasks.length} tâche${tasks.length > 0 ? "s" : ""} prévue${tasks.length > 0 ? "s" : ""} aujourd'hui`;
 
