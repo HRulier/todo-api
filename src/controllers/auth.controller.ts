@@ -116,10 +116,37 @@ async function loginWithGoogle(
   res: Response,
   next: NextFunction
 ) {
-  passport.authenticate("google", {
-    session: false,
-    scope: ["email", "profile"],
-  })(req, res, next);
+  try {
+    const redirectUrl = (req.query.redirectUrl || "") as string;
+
+    const stateObject = {
+      data: {} as { redirectUrl?: string },
+    };
+
+    if (["profile"].includes(redirectUrl)) {
+      stateObject.data.redirectUrl = redirectUrl;
+    }
+
+    // Encode state as base64url (URL-safe)
+    const stateJson = JSON.stringify(stateObject);
+    const state = Buffer.from(stateJson).toString("base64url");
+
+    passport.authenticate("google", {
+      session: false,
+      scope: ["email", "profile"],
+      state,
+    })(req, res, next);
+  } catch (error) {
+    console.error("Error in loginWithGoogle:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAgent: req.get("User-Agent"),
+      query: Object.keys(req.query || {}),
+    });
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      error: "Invalid OAuth request parameters",
+    });
+  }
 }
 
 async function loginWithGoogleCallback(
@@ -133,7 +160,17 @@ async function loginWithGoogleCallback(
         `${process.env.FRONT_URL}/signin?error=auth_google_failed`
       );
     }
-    const { token, refreshToken } = data;
+
+    // Extract user data and state data from the callback
+    const { user: userData, stateData } = data;
+
+    if (!userData || !userData.token || !userData.refreshToken) {
+      return res.redirect(
+        `${process.env.FRONT_URL}/signin?error=auth_google_failed`
+      );
+    }
+
+    const { token, refreshToken } = userData;
 
     // Secure true for production, secure: true need https
     res.cookie("refreshToken", refreshToken, {
@@ -144,8 +181,15 @@ async function loginWithGoogleCallback(
       // path: "/api/auth/refresh-token", // Limitation du cookie à la route de refresh
     });
 
+    // Use custom redirect URL from state data if available
+    let queryParams = `?token=${token}`;
+
+    if (stateData?.redirectUrl) {
+      queryParams += `&redirectUrl=${stateData.redirectUrl}`;
+    }
+
     return res.redirect(
-      `${process.env.FRONT_URL}/auth-google-success?token=${token}`
+      `${process.env.FRONT_URL}/auth-google-success${queryParams}`
     );
   })(req, res, next);
 }

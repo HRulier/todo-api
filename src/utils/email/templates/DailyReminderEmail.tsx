@@ -199,7 +199,7 @@ export const DailyReminderEmail = ({
               href={`${process.env.FRONT_URL}/profile?redirect`}
               style={link}
             >
-              🔗 ❌ Ne plus recevoir de rappel
+              ❌ Ne plus recevoir de rappel
             </Link>
           </Text>
           <Text style={paragraph}>
