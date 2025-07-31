@@ -11,6 +11,7 @@ const UserSchema = z.object({
   role: z.string().openapi({ example: "Member" }),
   googleId: z.number().nullable().openapi({ example: 78972475051234701234 }),
   isVerified: z.boolean().openapi({ example: false }),
+  dailyEmailReminder: z.boolean().openapi({ example: false }),
   email: z.string().email().openapi({ example: "joe.smith@mail.fr" }),
   password: z.string().nullish().openapi({ example: "Test!abc432" }),
   profile: z.object({

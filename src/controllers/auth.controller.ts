@@ -414,10 +414,12 @@ async function updateProfile(req: IAuthentificateRequest, res: Response) {
     }
 
     const profile = req.body?.profile || user.profile || {};
+    const { dailyEmailReminder } = req.body;
     const { lastName, firstName } = profile;
 
     await user.set({
       profile: { lastName, firstName },
+      dailyEmailReminder,
     });
     await user.save();
 

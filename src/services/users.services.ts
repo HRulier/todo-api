@@ -1,6 +1,15 @@
-import { IUser } from "~/types/users";
+import { startOfDay, endOfDay } from "date-fns";
+import { Resend } from "resend";
+import dotenv from "dotenv";
+import dotEnvConfig from "~/config/dot-env";
+import type { IUser } from "~/types/users";
+import type { TaskDocument } from "~/types/task";
 import { generateAccessToken, generateRefreshToken } from "~/utils/jwt";
 import User from "~/models/user";
+import Task from "~/models/task";
+import DailyReminderEmail from "~/utils/email/templates/DailyReminderEmail";
+
+dotenv.config(dotEnvConfig);
 
 const getUserInfo = async (user: IUser) => {
   return {
@@ -60,4 +69,55 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
   }
 };
 
-export { getUserInfo, findOrCreateUser };
+const sendDailyEmailToUsers = async () => {
+  const today = new Date();
+  const users = await User.find({ dailyEmailReminder: true }).select(
+    "_id email"
+  );
+
+  const tasks = await Task.find({
+    user: { $in: users.map((user: any) => user._id) },
+    completed: false,
+    dueDate: {
+      $gte: startOfDay(today),
+      $lte: endOfDay(today),
+    },
+  }).populate("tags user");
+
+  const idToEmails = users.reduce((acc: any, user: any) => {
+    acc[user._id] = user.email;
+    return acc;
+  }, {});
+
+  const groupedTasks: { [key: string]: TaskDocument[] } = tasks.reduce(
+    (acc: any, task: TaskDocument) => {
+      const email = idToEmails[task.user._id.toString()];
+      if (!acc[email]) {
+        acc[email] = [];
+      }
+      acc[email].push(task);
+      return acc;
+    },
+    {}
+  );
+
+  const emails = Object.entries(groupedTasks).map(([email, tasks]) => {
+    const username =
+      tasks[0].user.profile.firstName + " " + tasks[0].user.profile.lastName;
+
+    const subject = `${tasks.length} tâche${tasks.length > 0 ? "s" : ""} prévue${tasks.length > 0 ? "s" : ""} aujourd'hui`;
+
+    return {
+      from: `${process.env.PROJECT_NAME} <${process.env.NOREPLY}>`,
+      to: [email],
+      subject,
+      react: DailyReminderEmail({ username, tasks }),
+    };
+  });
+
+  const resend = new Resend(process.env.RESEND_APIKEY);
+
+  await resend.batch.send(emails);
+};
+
+export { getUserInfo, findOrCreateUser, sendDailyEmailToUsers };

@@ -11,6 +11,7 @@ import limiter from "~/middlewares/rateLimiter.handler";
 import AuthRoutes from "./auth.routes";
 import TasksRoutes from "./task.routes";
 import TagsRoutes from "./tag.routes";
+import JobsRoutes from "./job.routes";
 
 import { createOpenApiDocument } from "~/openapi";
 dotenv.config(dotEnvConfig);
@@ -30,6 +31,7 @@ export default function (app: Application) {
   apiRoutes.use("/auth", AuthRoutes);
   apiRoutes.use("/tasks", TasksRoutes);
   apiRoutes.use("/tags", TagsRoutes);
+  apiRoutes.use("/jobs", JobsRoutes);
 
   // Set url for API group routes
   app.use("/api", apiRoutes);

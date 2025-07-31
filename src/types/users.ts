@@ -12,6 +12,7 @@ export interface IUser extends Document {
   role: string;
   googleId: number | null;
   isVerified: boolean;
+  dailyEmailReminder: boolean;
   password: string | null;
   refreshToken: string;
   resetPasswordToken: string | null;

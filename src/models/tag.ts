@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { TagDocument } from "~/types/tag";
+import { TagDocument } from "~/types/tags";
 const Schema = mongoose.Schema;
 
 //= ===============================
@@ -15,7 +15,7 @@ const TagSchema = new Schema(
     },
     color: {
       type: String,
-      default: null,
+      default: "#FFB3E6",
     },
     user: {
       type: Schema.Types.ObjectId,

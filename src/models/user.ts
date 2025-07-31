@@ -34,6 +34,11 @@ const UserSchema = new Schema(
       required: true,
       default: false,
     },
+    dailyEmailReminder: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     profile: {
       firstName: { type: String, required: true },
       lastName: { type: String, required: true },

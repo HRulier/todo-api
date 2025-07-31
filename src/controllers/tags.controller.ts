@@ -1,7 +1,7 @@
 import { Response } from "express";
 import HTTP_STATUS from "~/utils/http_status";
 import { handleError, CustomError } from "~/utils/errors";
-import { ITagController } from "~/types/tag";
+import { ITagController } from "~/types/tags";
 import { IAuthentificateRequest } from "~/types/auth";
 import { IUser } from "~/types/users";
 import Tag from "~/models/tag";

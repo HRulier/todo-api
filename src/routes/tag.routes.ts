@@ -1,5 +1,5 @@
 import { Router } from "express";
-import TagController from "~/controllers/tag.controller";
+import TagController from "~/controllers/tags.controller";
 import { requireAuth } from "~/middlewares/auth.handler";
 import validateRequest from "~/middlewares/validateRequest.handler";
 import { CreateTagSchema } from "~/schemas/tag.schema";
