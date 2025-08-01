@@ -97,7 +97,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      // sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -176,7 +176,7 @@ async function loginWithGoogleCallback(
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      // sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       // path: "/api/auth/refresh-token", // Limitation du cookie à la route de refresh
     });
@@ -221,7 +221,7 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      // sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -234,6 +234,8 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
 async function logout(req: IAuthentificateRequest, res: Response) {
   try {
     const { refreshToken } = req.cookies;
+
+    console.log("refreshToken", refreshToken);
 
     const user = await User.findOne({
       refreshToken,

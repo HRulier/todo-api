@@ -16,6 +16,7 @@ const getUserInfo = async (user: IUser) => {
     _id: user._id,
     email: user.email,
     profile: user.profile,
+    dailyEmailReminder: user.dailyEmailReminder,
   };
 };
 

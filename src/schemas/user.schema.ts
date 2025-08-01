@@ -57,6 +57,7 @@ const RegisterUserSchema = UserSchema.pick({
 const LoginUserSchema = UserSchema.pick({ email: true, password: true });
 
 const UpdateUserProfileSchema = z.object({
+  dailyEmailReminder: z.boolean().openapi({ example: false }),
   profile: z.object({
     firstName: z.string().optional(),
     lastName: z.string().optional(),
