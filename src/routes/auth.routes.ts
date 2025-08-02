@@ -98,4 +98,6 @@ authRoutes.put(
   AuthController.updateProfile
 );
 
+authRoutes.delete("/account", requireAuth, AuthController.deleteUser);
+
 export default authRoutes;

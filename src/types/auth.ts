@@ -25,4 +25,5 @@ export interface IAuthController {
   resendVerificationEmail: (req: Request, res: Response) => void;
   getProfile: (req: IAuthentificateRequest, res: Response) => void;
   updateProfile: (req: IAuthentificateRequest, res: Response) => void;
+  deleteUser: (req: IAuthentificateRequest, res: Response) => void;
 }

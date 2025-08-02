@@ -97,7 +97,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -176,7 +176,7 @@ async function loginWithGoogleCallback(
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       // path: "/api/auth/refresh-token", // Limitation du cookie à la route de refresh
     });
@@ -221,7 +221,7 @@ async function refresh(req: IAuthentificateRequest, res: Response) {
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -477,6 +477,20 @@ async function updateProfile(req: IAuthentificateRequest, res: Response) {
   }
 }
 
+async function deleteUser(req: Request, res: Response) {
+  try {
+    const userId = (req.user as IUser)?._id;
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      throw NotFound;
+    }
+
+    return res.status(200).json({ message: "User successfully deleted" });
+  } catch (error: any) {
+    return handleError(res, req, error);
+  }
+}
+
 const AuthController: IAuthController = {
   register,
   login,
@@ -492,6 +506,7 @@ const AuthController: IAuthController = {
   resendVerificationEmail,
   getProfile,
   updateProfile,
+  deleteUser,
 };
 
 export default AuthController;

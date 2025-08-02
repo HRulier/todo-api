@@ -423,10 +423,10 @@ export const registerAuthPaths = () => {
     },
   });
 
-  // GET /verified-email/{token}
+  // GET /auth/verified-email/{token}
   registry.registerPath({
     method: "get",
-    path: "/verified-email/{token}",
+    path: "/auth/verified-email/{token}",
     tags: ["Authentication"],
     summary: "Verify user email",
     description:
@@ -479,6 +479,32 @@ export const registerAuthPaths = () => {
       },
       [HTTP_STATUS.BAD_REQUEST]: userAlreadyVerifiedExample,
       [HTTP_STATUS.NOT_FOUND]: userNotFoundResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  // DELETE /auth/account
+  registry.registerPath({
+    method: "delete",
+    path: "/auth/account",
+    tags: ["Authentication"],
+    summary: "Delete user account and tasks",
+    description: "Delete the user account and all the tasks associated with it",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description: "Get profile for the authenticated user",
+        content: {
+          "application/json": {
+            schema: z.object({
+              message: z
+                .string()
+                .openapi({ example: "User successfully deleted." }),
+            }),
+          },
+        },
+      },
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });

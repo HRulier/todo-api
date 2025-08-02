@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { IUser } from "~/types/users";
+import Task from "~/models/task";
 const Schema = mongoose.Schema;
 
 //= ===============================
@@ -70,6 +71,20 @@ UserSchema.pre("save", function (next) {
     if (user.password) user.password = bcrypt.hashSync(user.password, salt);
     next();
   });
+});
+
+UserSchema.pre("findOneAndDelete", async function (next) {
+  try {
+    const user = await this.model.findOne(this.getFilter());
+    if (user) {
+      await Task.deleteMany({ user: user._id });
+    }
+    next();
+  } catch (err) {
+    console.log("UserSchema findOneAndDelete", this.getFilter());
+    console.log(err);
+    next();
+  }
 });
 
 // Method to compare password for login
