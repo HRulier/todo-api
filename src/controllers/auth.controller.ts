@@ -235,8 +235,6 @@ async function logout(req: IAuthentificateRequest, res: Response) {
   try {
     const { refreshToken } = req.cookies;
 
-    console.log("refreshToken", refreshToken);
-
     const user = await User.findOne({
       refreshToken,
     });
@@ -481,9 +479,12 @@ async function deleteUser(req: Request, res: Response) {
   try {
     const userId = (req.user as IUser)?._id;
     const user = await User.findByIdAndDelete(userId);
+    // hooks are used to delete user's data (tasks, tags)
     if (!user) {
       throw NotFound;
     }
+
+    res.clearCookie("refreshToken");
 
     return res.status(200).json({ message: "User successfully deleted" });
   } catch (error: any) {

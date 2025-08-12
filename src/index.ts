@@ -9,21 +9,27 @@ extendZodWithOpenApi(z);
 
 dotenv.config(configDotenv);
 
-const port = process.env.PORT || 3000;
+const port = (process.env.PORT || 3000) as number;
 
 const connectToMongoose = async () => {
   try {
-    await mongoose.connect(
-      `mongodb://127.0.0.1:27017/${process.env.DATABASE_NAME}`
-    );
-    console.log("Connected to MongoDb");
+    const mongoUri =
+      process.env.MONGODB_URI ||
+      `mongodb://127.0.0.1:27017/${process.env.DATABASE_NAME}`;
+
+    await mongoose.connect(mongoUri);
+    console.log("Connected to MongoDB successfully");
   } catch (err) {
-    console.error(err);
+    console.error("MongoDB connection failed:", err);
+    console.error("Please ensure MongoDB is running on your system");
+    process.exit(1);
   }
 };
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(
+    `Server running on port ${port} and accessible on all network interfaces`
+  );
 });
 
 connectToMongoose();

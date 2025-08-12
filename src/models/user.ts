@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { IUser } from "~/types/users";
 import Task from "~/models/task";
 const Schema = mongoose.Schema;
@@ -65,10 +65,12 @@ UserSchema.pre("save", function (next) {
   const SALT_FACTOR = 10;
 
   if (!user.isModified("password")) return next();
-  bcrypt.genSalt(SALT_FACTOR, (err, salt: string) => {
+  bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
     if (err) return next(err);
     user.resetPasswordToken = null;
-    if (user.password) user.password = bcrypt.hashSync(user.password, salt);
+    if (user.password && salt) {
+      user.password = bcrypt.hashSync(user.password, salt);
+    }
     next();
   });
 });
