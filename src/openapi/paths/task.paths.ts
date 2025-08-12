@@ -44,27 +44,15 @@ export const registerTaskPaths = () => {
         name: "minDate",
         in: "query",
         description:
-          "Filter tasks from this date (inclusive). Format: YYYY-MM-DD",
+          "Filter tasks from this date (inclusive). Format: ISO 8601 with 'Z' suffix",
         required: false,
-        schema: {
-          type: "string",
-          format: "date",
-          pattern: "^\\d{4}-\\d{2}-\\d{2}$",
-          example: "2025-01-01",
-        },
       },
       {
         name: "maxDate",
         in: "query",
         description:
-          "Filter tasks until this date (inclusive). Format: YYYY-MM-DD",
+          "Filter tasks until this date (inclusive). Format: ISO 8601 with 'Z' suffix",
         required: false,
-        schema: {
-          type: "string",
-          format: "date",
-          pattern: "^\\d{4}-\\d{2}-\\d{2}$",
-          example: "2025-12-31",
-        },
       },
     ],
     responses: {

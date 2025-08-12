@@ -1,7 +1,7 @@
 import { Response } from "express";
 import HTTP_STATUS from "~/utils/http_status";
 import { NotFoundError, handleError } from "~/utils/errors";
-import { isValid, parseISO, startOfDay, endOfDay } from "date-fns";
+import { isValid } from "date-fns";
 import {
   ITaskController,
   CreateTaskInput,
@@ -33,22 +33,23 @@ async function getTasks(req: IAuthentificateRequest, res: Response) {
       completed: string;
     }> = { user: user._id };
 
+    // Any string is considered as "true" except for explicit value "false"
     if (typeof completed === "string") {
       query.completed = !(completed === "false");
     }
 
     const parsedMinDate =
-      typeof minDate === "string" ? parseISO(minDate) : null;
+      typeof minDate === "string" ? new Date(minDate) : null;
     const parsedMaxDate =
-      typeof maxDate === "string" ? parseISO(maxDate) : null;
+      typeof maxDate === "string" ? new Date(maxDate) : null;
 
     const isMaxDateValid = parsedMaxDate && isValid(parsedMaxDate);
     const isMinDateValid = parsedMinDate && isValid(parsedMinDate);
 
     if (isMinDateValid || isMaxDateValid) {
       query.dueDate = {};
-      if (isMinDateValid) query.dueDate.$gte = startOfDay(parsedMinDate);
-      if (isMaxDateValid) query.dueDate.$lte = endOfDay(parsedMaxDate);
+      if (isMinDateValid) query.dueDate.$gte = parsedMinDate;
+      if (isMaxDateValid) query.dueDate.$lte = parsedMaxDate;
     }
 
     const tasks = await Task.find(query).populate(populateTask);

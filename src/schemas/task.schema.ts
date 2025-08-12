@@ -2,6 +2,16 @@ import registry from "~/openapi/registry";
 import z from "~/utils/zod/zod-extended";
 import { TagSchema } from "./tag.schema";
 
+const utcDateSchema = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
+    "Date must be in UTC format (ISO 8601 with 'Z' suffix)"
+  )
+  .refine((dateStr: string) => !isNaN(new Date(dateStr).getTime()), {
+    message: "Date must be valid",
+  });
+
 //* Use as response schema for GET POST PUT /tasks
 const TaskSchema = z.object({
   _id: z
@@ -26,16 +36,13 @@ const TaskSchema = z.object({
 });
 
 const GetTasksQuerySchema = z.object({
-  minDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+  minDate: utcDateSchema
     .nullish()
-    .openapi({ example: "2025-07-03" }),
-  maxDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+    .openapi({ example: "2025-08-10T22:00:00.000Z" }),
+  maxDate: utcDateSchema
     .nullish()
-    .openapi({ example: "2025-07-03" }),
+    .openapi({ example: "2025-08-16T22:00:00.000Z" }),
+  // completed: z.coerce.boolean().optional().openapi({ example: false }),
   completed: z.string().nullish().openapi({ example: "false" }),
 });
 
