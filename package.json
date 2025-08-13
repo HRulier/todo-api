@@ -5,8 +5,8 @@
   "scripts": {
     "email": "email dev --dir ./src/utils/email/templates",
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
-    "build": "tsc && tsc-alias",
-    "start": "node dist/index.js",
+    "build": "cross-env NODE_ENV=production tsc && tsc-alias",
+    "start": "cross-env NODE_ENV=production node dist/src/index.js",
     "test": "jest --detectOpenHandles",
     "test:watch": "jest --watchAll --detectOpenHandles --forceExit",
     "test:coverage": "jest --coverage"
@@ -38,6 +38,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
+    "cross-env": "^10.0.0",
     "eslint": "^9.21.0",
     "jest": "^29.7.0",
     "react-email": "3.0.7",

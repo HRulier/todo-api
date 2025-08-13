@@ -115,8 +115,6 @@ const sendDailyEmailToUsers = async () => {
     const username =
       tasks[0].user.profile.firstName + " " + tasks[0].user.profile.lastName;
 
-    console.log(JSON.stringify(tasks, null, 2));
-
     const subject = `${tasks.length} tâche${tasks.length > 0 ? "s" : ""} prévue${tasks.length > 0 ? "s" : ""} aujourd'hui`;
 
     return {

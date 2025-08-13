@@ -163,9 +163,9 @@ export const DailyReminderEmail = ({
             (task) => (
               <Section
                 key={
-                  process.env.NODE_ENV === "development"
+                  (process.env.NODE_ENV === "development"
                     ? task._id
-                    : task._id.toString()
+                    : task._id.toString()) as string
                 }
                 style={taskItem}
               >
@@ -175,9 +175,9 @@ export const DailyReminderEmail = ({
                     {task.tags.map((taskTag: any) => (
                       <span
                         key={
-                          process.env.NODE_ENV === "development"
+                          (process.env.NODE_ENV === "development"
                             ? task._id
-                            : task._id.toString()
+                            : task._id.toString()) as string
                         }
                         style={{ ...tag, backgroundColor: taskTag.color }}
                       >
