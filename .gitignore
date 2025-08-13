@@ -6,3 +6,7 @@ dist/
 .DS_Store
 structure.md
 CLAUDE.md
+
+Dockerfile
+Dockerfile-*
+.dockerignore
