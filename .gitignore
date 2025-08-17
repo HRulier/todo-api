@@ -1,6 +1,5 @@
 .env
-.env.prod
-.env.local
+.env.*
 node_modules/
 dist/
 .DS_Store
