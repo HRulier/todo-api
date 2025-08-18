@@ -1,7 +1,11 @@
 # Build and run the API container with host networking
 
 docker build -t todo-api --target development .
-docker run --name todo-api --network host todo-api
+
+docker run --name todo-api --network host \
+ -v .:/app \
+ -v /app/node_modules \
+ todo-api
 
 docker start todo-api
 docker stop todo-api

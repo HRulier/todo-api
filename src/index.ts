@@ -13,9 +13,7 @@ const port = (process.env.PORT || 3000) as number;
 
 const connectToMongoose = async () => {
   try {
-    const mongoUri =
-      process.env.MONGODB_URI ||
-      `mongodb://127.0.0.1:27017/${process.env.DATABASE_NAME}`;
+    const mongoUri = `${process.env.MONGODB_URI}`;
 
     await mongoose.connect(mongoUri);
     console.log("Connected to MongoDB successfully");

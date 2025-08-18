@@ -31,9 +31,7 @@ const user2 = {
 beforeAll(async () => {
   try {
     // Connect to the database test
-    await mongoose.connect(
-      `mongodb://127.0.0.1:27017/${process.env.TEST_DATABASE_NAME}`
-    );
+    await mongoose.connect(`${process.env.MONGODB_TEST_URI}`);
     // console.log("Connected to MongoDb");
 
     await mongoose.connection.dropDatabase();
