@@ -13,7 +13,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://192.168.1.58:5173"],
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://todo-app.loopness.fr"
+        : ["http://localhost:5173", "http://192.168.1.58:5173"],
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Origin",
