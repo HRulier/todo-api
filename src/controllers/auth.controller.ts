@@ -189,6 +189,8 @@ async function loginWithGoogleCallback(
       queryParams += `&redirectUrl=${stateData.redirectUrl}`;
     }
 
+    console.log(`${process.env.FRONT_URL}/auth-google-success${queryParams}`);
+
     return res.redirect(
       `${process.env.FRONT_URL}/auth-google-success${queryParams}`
     );
