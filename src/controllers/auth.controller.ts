@@ -154,6 +154,7 @@ async function loginWithGoogleCallback(
   res: Response,
   next: NextFunction
 ) {
+  console.log("loginWithGoogleCallback");
   passport.authenticate("google", { session: false }, (err, data) => {
     if (err || !data) {
       return res.redirect(
