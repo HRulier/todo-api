@@ -22,8 +22,11 @@ const getUserInfo = async (user: IUser) => {
 
 // Use for Signin/Signup with Google 0Auth2
 const findOrCreateUser = async (userData: Partial<IUser>) => {
+  console.log("findOrCreateUser - START", { email: userData.email, googleId: userData.googleId });
   try {
+    console.log("findOrCreateUser - Checking database connection...");
     const user = await User.findOne({ email: userData.email });
+    console.log("findOrCreateUser - Database query completed", { userFound: !!user });
     let userInfo: any = {};
     let accessToken: string;
     let refreshToken: string;
@@ -61,13 +64,14 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
       await user.save();
     }
 
+    console.log("findOrCreateUser - SUCCESS", { userId: userInfo._id });
     return {
       user: userInfo,
       refreshToken,
       token: accessToken,
     };
   } catch (err) {
-    console.log(err);
+    console.error("findOrCreateUser - ERROR:", err);
     return err;
   }
 };

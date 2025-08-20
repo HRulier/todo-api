@@ -155,7 +155,15 @@ async function loginWithGoogleCallback(
   next: NextFunction
 ) {
   console.log("loginWithGoogleCallback - Start");
+  
+  // Add timeout to detect if passport.authenticate never calls back
+  const timeoutId = setTimeout(() => {
+    console.error("TIMEOUT: passport.authenticate callback never called after 30 seconds");
+  }, 30000);
+
   passport.authenticate("google", { session: false }, (err, data) => {
+    clearTimeout(timeoutId);
+    console.log("passport authenticate google - CALLBACK REACHED");
     console.log("passport authenticate google - Error:", err);
     console.log("passport authenticate google - Data:", data ? "received" : "null");
     if (err || !data) {
