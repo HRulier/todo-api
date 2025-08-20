@@ -29,23 +29,25 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
     let refreshToken: string;
 
     if (!user) {
-      accessToken = generateAccessToken({
-        _id: userInfo._id,
-        email: userInfo.email,
-      });
-      refreshToken = generateRefreshToken(userInfo);
-
       const user = new User({
         email: userData.email,
         password: null,
         googleId: userData.googleId,
         profile: userData.profile || {},
         isVerified: true,
-        refreshToken,
       });
 
       await user.save();
       userInfo = await getUserInfo(user);
+
+      accessToken = generateAccessToken({
+        _id: userInfo._id,
+        email: userInfo.email,
+      });
+      refreshToken = generateRefreshToken(userInfo);
+
+      user.set({ refreshToken });
+      await user.save();
     } else {
       userInfo = await getUserInfo(user);
 
@@ -55,7 +57,7 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
       });
       refreshToken = generateRefreshToken(userInfo);
 
-      await user.set({ refreshToken, googleId: userData.googleId });
+      user.set({ refreshToken, googleId: userData.googleId });
       await user.save();
     }
 

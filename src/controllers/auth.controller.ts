@@ -154,9 +154,10 @@ async function loginWithGoogleCallback(
   res: Response,
   next: NextFunction
 ) {
-  console.log("loginWithGoogleCallback");
+  console.log("loginWithGoogleCallback - Start");
   passport.authenticate("google", { session: false }, (err, data) => {
-    console.log("passport authenticate google", err, data);
+    console.log("passport authenticate google - Error:", err);
+    console.log("passport authenticate google - Data:", data ? "received" : "null");
     if (err || !data) {
       return res.redirect(
         `${process.env.FRONT_URL}/signin?error=auth_google_failed`
