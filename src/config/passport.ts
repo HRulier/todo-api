@@ -87,13 +87,6 @@ const jwtLogin = new JwtStrategy(
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
 
-console.log("Google OAuth Config:", {
-  hasClientId: !!GOOGLE_CLIENT_ID,
-  clientIdLength: GOOGLE_CLIENT_ID?.length || 0,
-  hasClientSecret: !!GOOGLE_CLIENT_SECRET,
-  secretLength: GOOGLE_CLIENT_SECRET?.length || 0,
-  callbackURL: `${process.env.API_URL}/auth/google/callback`
-});
 
 const googleStrategy = new GoogleStrategy(
   {
@@ -109,11 +102,6 @@ const googleStrategy = new GoogleStrategy(
     profile: any,
     done: any
   ) {
-    console.log("GoogleStrategy - START", {
-      profileId: profile?.id,
-      email: profile?.emails?.[0]?.value,
-      hasAccessToken: !!accessToken
-    });
     try {
       let stateData = null;
 
@@ -151,7 +139,6 @@ const googleStrategy = new GoogleStrategy(
         }
       }
 
-      console.log("GoogleStrategy - Calling findOrCreateUser");
       const user = await findOrCreateUser({
         email: profile.emails[0].value,
         googleId: profile.id,
@@ -160,8 +147,6 @@ const googleStrategy = new GoogleStrategy(
           lastName: profile.name?.givenName || "Non renseigné",
         },
       });
-
-      console.log("GoogleStrategy - findOrCreateUser result:", user ? "success" : "failed");
 
       // Pass both user and state data to the callback
       return done(null, { user, stateData });
