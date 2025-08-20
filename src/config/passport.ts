@@ -101,6 +101,7 @@ const googleStrategy = new GoogleStrategy(
     profile: any,
     done: any
   ) {
+    console.log("GoogleStrategy");
     try {
       let stateData = null;
 
