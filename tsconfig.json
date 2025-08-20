@@ -1,22 +1,25 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "es2022",
     "module": "CommonJS",
-    "lib": ["es2022"],
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "resolveJsonModule": true,
-    "skipDefaultLibCheck": true,
+    "lib": ["es2022", "dom"], // components react-email
     "outDir": "./dist",
-    "rootDir": "./src",
+    // "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"],
       "~~/*": ["./*"]
-    }
+    },
+    "jsx": "react",
+    "declaration": true
   },
+  "include": ["src/**/*", "tests/**/*", "jest.config.tstests/setup.ts"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
   }

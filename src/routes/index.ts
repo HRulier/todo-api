@@ -1,0 +1,41 @@
+import { Application, Router } from "express";
+import { serve, setup } from "swagger-ui-express";
+import dotenv from "dotenv";
+
+import "~/config/passport";
+import dotEnvConfig from "~/config/dot-env";
+
+import unknownRoutesHandler from "~/middlewares/unknownRoutes.handler";
+import limiter from "~/middlewares/rateLimiter.handler";
+
+import AuthRoutes from "./auth.routes";
+import TasksRoutes from "./task.routes";
+import TagsRoutes from "./tag.routes";
+import JobsRoutes from "./job.routes";
+
+import { createOpenApiDocument } from "~/openapi";
+dotenv.config(dotEnvConfig);
+
+const { authLimiter } = limiter;
+
+export default function (app: Application) {
+  const openApiDocument = createOpenApiDocument();
+
+  // Initializing route groups
+  const apiRoutes = Router();
+
+  if (process.env.NODE_ENV === "production") {
+    apiRoutes.use("/auth", authLimiter);
+  }
+
+  apiRoutes.use("/auth", AuthRoutes);
+  apiRoutes.use("/tasks", TasksRoutes);
+  apiRoutes.use("/tags", TagsRoutes);
+  apiRoutes.use("/jobs", JobsRoutes);
+
+  // Set url for API group routes
+  app.use("/api", apiRoutes);
+  // Set url for API docs
+  app.use("/api-docs", serve, setup(openApiDocument));
+  app.all("*", unknownRoutesHandler);
+}
