@@ -33,6 +33,7 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
         password: null,
         googleId: userData.googleId,
         profile: userData.profile || {},
+        timezone: userData.timezone,
         isVerified: true,
       });
 

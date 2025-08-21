@@ -120,13 +120,20 @@ async function loginWithGoogle(
 ) {
   try {
     const redirectUrl = (req.query.redirectUrl || "") as string;
+    const timezone = (req.query.timezone || "") as string;
+
+    console.log(timezone);
 
     const stateObject = {
-      data: {} as { redirectUrl?: string },
+      data: {} as { redirectUrl?: string; timezone?: string },
     };
 
     if (["profile"].includes(redirectUrl)) {
       stateObject.data.redirectUrl = redirectUrl;
+    }
+
+    if (timezone) {
+      stateObject.data.timezone = timezone;
     }
 
     // Encode state as base64url (URL-safe)

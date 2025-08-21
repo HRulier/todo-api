@@ -87,7 +87,6 @@ const jwtLogin = new JwtStrategy(
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
 
-
 const googleStrategy = new GoogleStrategy(
   {
     clientID: GOOGLE_CLIENT_ID,
@@ -146,6 +145,7 @@ const googleStrategy = new GoogleStrategy(
           firstName: profile.name?.familyName || "Non renseigné",
           lastName: profile.name?.givenName || "Non renseigné",
         },
+        timezone: stateData?.timezone,
       });
 
       // Pass both user and state data to the callback
