@@ -76,61 +76,72 @@ const sendDailyEmailToUsers = async () => {
     "_id email timezone"
   );
 
-  // const timezones = users.map((user: any) => user.timezone);
+  const timezones = [...new Set(users.map((user) => user.timezone))];
 
-  // const dates = timezones.map((timezone: any) => {
-  //   const date = new Date();
-  //   return new Date(date.toLocaleDateString("sv-SE", { timeZone: timezone }));
-  // });
-
-  // console.log(dates);
-
-  // Timezone actuelle (celle de votre navigateur/système)
   const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // Obtenir l'heure dans les deux timezones
-  const currentTime = new Date(
-    new Date().toLocaleString("en-US", {
-      timeZone: currentTimezone,
-    })
-  );
-  const targetTime = new Date(
-    new Date().toLocaleString("en-US", {
-      timeZone: "Europe/Paris",
-    })
-  );
+  const getTasksForTimezone = async (
+    timezone: string
+  ): Promise<TaskDocument[]> => {
+    const currentTime = new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: currentTimezone,
+      })
+    );
+    const targetTime = new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: timezone,
+      })
+    );
 
-  // Calculer la différence en heures
-  const diffMs = currentTime.getTime() - targetTime.getTime();
-  let startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  startOfDay = new Date(startOfDay.getTime() + diffMs);
-  let endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
-  endOfDay = new Date(endOfDay.getTime() + diffMs);
+    const diffMs = currentTime.getTime() - targetTime.getTime();
 
-  const tasks = await Task.find({
-    user: { $in: users.map((user: any) => user._id) },
-    completed: false,
-    dueDate: {
-      $gte: startOfDay,
-      $lte: endOfDay,
-    },
-  }).populate([
-    {
-      path: "tags",
-      select: "_id label color",
-    },
-    {
-      path: "user",
-      select: "_id email profile",
-    },
-  ]);
+    const now = new Date();
+    let startOfDay = new Date(
+      now.toLocaleString("sv-SE", { timeZone: timezone })
+    );
+
+    const timeoffset = diffMs;
+    startOfDay.setHours(0, 0, 0, 0);
+    startOfDay = new Date(startOfDay.getTime() + timeoffset);
+
+    let endOfDay = new Date(
+      now.toLocaleString("sv-SE", { timeZone: timezone })
+    );
+    endOfDay.setHours(23, 59, 59, 999);
+    endOfDay = new Date(endOfDay.getTime() + timeoffset);
+
+    const tasks = await Task.find({
+      user: { $in: users.map((user: any) => user._id) },
+      completed: false,
+      dueDate: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    }).populate([
+      {
+        path: "tags",
+        select: "_id label color",
+      },
+      {
+        path: "user",
+        select: "_id email profile",
+      },
+    ]);
+
+    return tasks;
+  };
+
+  const taskPromises = timezones.map((timezone) =>
+    getTasksForTimezone(timezone)
+  );
 
   const idToEmails = users.reduce((acc: any, user: any) => {
     acc[user._id] = user.email;
     return acc;
   }, {});
+
+  const tasks = (await Promise.all(taskPromises)).flat();
 
   const groupedTasks: { [key: string]: TaskDocument[] } = tasks.reduce(
     (acc: any, task: TaskDocument) => {
@@ -144,15 +155,11 @@ const sendDailyEmailToUsers = async () => {
     {}
   );
 
-  console.log("sendDailyEmailToUsers");
-  console.log(users);
-  console.log(JSON.stringify(groupedTasks, null, 2));
-
   const emails = Object.entries(groupedTasks).map(([email, tasks]) => {
     const username =
       tasks[0].user.profile.firstName + " " + tasks[0].user.profile.lastName;
 
-    const subject = `${tasks.length} tâche${tasks.length > 0 ? "s" : ""} prévue${tasks.length > 0 ? "s" : ""} aujourd'hui`;
+    const subject = `${tasks.length} tâche${tasks.length > 1 ? "s" : ""} prévue${tasks.length > 1 ? "s" : ""} aujourd'hui`;
 
     return {
       from: `${process.env.PROJECT_NAME} <${process.env.NOREPLY}>`,
