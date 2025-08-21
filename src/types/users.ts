@@ -10,6 +10,7 @@ export interface IUser extends Document {
   email: string;
   profile: UserProfile;
   role: string;
+  timezone: string;
   googleId: number | null;
   isVerified: boolean;
   dailyEmailReminder: boolean;

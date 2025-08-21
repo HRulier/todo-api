@@ -33,6 +33,7 @@ async function register(req: Request, res: Response) {
     const email = req.body.email;
     const password = req.body.password;
     const profile = req.body.profile;
+    const timezone = req.body.timezone;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -51,6 +52,7 @@ async function register(req: Request, res: Response) {
       verificationToken,
       verificationTokenExpires,
       profile: profile || {},
+      timezone,
     });
 
     await user.save();

@@ -72,16 +72,42 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
 };
 
 const sendDailyEmailToUsers = async () => {
-  const today = new Date();
   const users = await User.find({ dailyEmailReminder: true }).select(
-    "_id email"
+    "_id email timezone"
   );
 
-  const startOfDay = new Date(today);
-  startOfDay.setHours(0, 0, 0, 0);
+  // const timezones = users.map((user: any) => user.timezone);
 
-  const endOfDay = new Date(today);
+  // const dates = timezones.map((timezone: any) => {
+  //   const date = new Date();
+  //   return new Date(date.toLocaleDateString("sv-SE", { timeZone: timezone }));
+  // });
+
+  // console.log(dates);
+
+  // Timezone actuelle (celle de votre navigateur/système)
+  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Obtenir l'heure dans les deux timezones
+  const currentTime = new Date(
+    new Date().toLocaleString("en-US", {
+      timeZone: currentTimezone,
+    })
+  );
+  const targetTime = new Date(
+    new Date().toLocaleString("en-US", {
+      timeZone: "Europe/Paris",
+    })
+  );
+
+  // Calculer la différence en heures
+  const diffMs = currentTime.getTime() - targetTime.getTime();
+  let startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  startOfDay = new Date(startOfDay.getTime() + diffMs);
+  let endOfDay = new Date();
   endOfDay.setHours(23, 59, 59, 999);
+  endOfDay = new Date(endOfDay.getTime() + diffMs);
 
   const tasks = await Task.find({
     user: { $in: users.map((user: any) => user._id) },

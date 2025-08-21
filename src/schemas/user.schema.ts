@@ -9,6 +9,7 @@ const UserSchema = z.object({
       example: "67c5c2e9656ca8c7f95f7d52",
     }),
   role: z.string().openapi({ example: "Member" }),
+  timezone: z.string().openapi({ example: "Europe/Paris" }),
   googleId: z.number().nullable().openapi({ example: 78972475051234701234 }),
   isVerified: z.boolean().openapi({ example: false }),
   dailyEmailReminder: z.boolean().openapi({ example: false }),
@@ -52,6 +53,7 @@ const RegisterUserSchema = UserSchema.pick({
   email: true,
   password: true,
   profile: true,
+  timezone: true,
 });
 
 const LoginUserSchema = UserSchema.pick({ email: true, password: true });

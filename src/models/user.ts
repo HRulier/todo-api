@@ -26,6 +26,11 @@ const UserSchema = new Schema(
       required: true,
       default: "Member",
     },
+    timezone: {
+      type: String,
+      required: true,
+      default: "Europe/Paris",
+    },
     googleId: {
       type: Number,
       default: null,
