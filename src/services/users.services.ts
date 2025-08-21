@@ -113,6 +113,10 @@ const sendDailyEmailToUsers = async () => {
     {}
   );
 
+  console.log("sendDailyEmailToUsers");
+  console.log(users);
+  console.log(JSON.stringify(groupedTasks, null, 2));
+
   const emails = Object.entries(groupedTasks).map(([email, tasks]) => {
     const username =
       tasks[0].user.profile.firstName + " " + tasks[0].user.profile.lastName;
