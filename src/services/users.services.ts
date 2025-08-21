@@ -1,4 +1,3 @@
-import { startOfDay, endOfDay } from "date-fns";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 import dotEnvConfig from "~/config/dot-env";
@@ -78,12 +77,18 @@ const sendDailyEmailToUsers = async () => {
     "_id email"
   );
 
+  const startOfDay = new Date(today);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(today);
+  endOfDay.setHours(23, 59, 59, 999);
+
   const tasks = await Task.find({
     user: { $in: users.map((user: any) => user._id) },
     completed: false,
     dueDate: {
-      $gte: startOfDay(today),
-      $lte: endOfDay(today),
+      $gte: startOfDay,
+      $lte: endOfDay,
     },
   }).populate([
     {
