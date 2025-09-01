@@ -31,7 +31,8 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
       const user = new User({
         email: userData.email,
         password: null,
-        googleId: userData.googleId,
+        googleId: userData?.googleId,
+        slackId: userData?.slackId,
         profile: userData.profile || {},
         timezone: userData.timezone,
         isVerified: true,
@@ -57,7 +58,16 @@ const findOrCreateUser = async (userData: Partial<IUser>) => {
       });
       refreshToken = generateRefreshToken(userInfo);
 
-      user.set({ refreshToken, googleId: userData.googleId });
+      user.set({ refreshToken });
+
+      if (userData.googleId) {
+        user.set({ googleId: userData.googleId });
+      }
+
+      if (userData.slackId) {
+        user.set({ slackId: userData.slackId });
+      }
+
       await user.save();
     }
 
