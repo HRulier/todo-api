@@ -30,6 +30,11 @@ authRoutes.get("/google", AuthController.loginWithGoogle);
 authRoutes.get("/google/callback", AuthController.loginWithGoogleCallback);
 // **** //
 
+//Slack OAuth2 endpoints
+authRoutes.get("/slack", AuthController.loginWithSlack);
+authRoutes.get("/slack/callback", AuthController.loginWithSlackCallback);
+// **** //
+
 authRoutes.post(
   "/refresh-token",
   validateRequest({

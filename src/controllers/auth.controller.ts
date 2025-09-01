@@ -122,8 +122,6 @@ async function loginWithGoogle(
     const redirectUrl = (req.query.redirectUrl || "") as string;
     const timezone = (req.query.timezone || "") as string;
 
-    console.log(timezone);
-
     const stateObject = {
       data: {} as { redirectUrl?: string; timezone?: string },
     };
@@ -197,11 +195,85 @@ async function loginWithGoogleCallback(
       queryParams += `&redirectUrl=${stateData.redirectUrl}`;
     }
 
-    console.log(`${process.env.FRONT_URL}/auth-google-success${queryParams}`);
+    console.log(`${process.env.FRONT_URL}/auth-success${queryParams}`);
 
-    return res.redirect(
-      `${process.env.FRONT_URL}/auth-google-success${queryParams}`
-    );
+    return res.redirect(`${process.env.FRONT_URL}/auth-success${queryParams}`);
+  })(req, res, next);
+}
+
+async function loginWithSlack(req: Request, res: Response, next: NextFunction) {
+  try {
+    const redirectUrl = (req.query.redirectUrl || "") as string;
+    const timezone = (req.query.timezone || "") as string;
+
+    const stateObject = {
+      data: {} as { redirectUrl?: string; timezone?: string },
+    };
+
+    if (["profile"].includes(redirectUrl)) {
+      stateObject.data.redirectUrl = redirectUrl;
+    }
+
+    if (timezone) {
+      stateObject.data.timezone = timezone;
+    }
+
+    // Encode state as base64url (URL-safe)
+    const stateJson = JSON.stringify(stateObject);
+    const state = Buffer.from(stateJson).toString("base64url");
+
+    passport.authenticate("Slack", {
+      session: false,
+      state,
+    })(req, res, next);
+  } catch (error) {
+    console.error("Error in loginWithSlack:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAgent: req.get("User-Agent"),
+      query: Object.keys(req.query || {}),
+    });
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      error: "Invalid OAuth request parameters",
+    });
+  }
+}
+
+async function loginWithSlackCallback(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  passport.authenticate("Slack", { session: false }, (err: any, data: any) => {
+    if (err || !data) {
+      return res.redirect(
+        `${process.env.FRONT_URL}/signin?error=auth_slack_failed`
+      );
+    }
+
+    // Extract user data  from the callback
+    const { user: userData } = data;
+
+    if (!userData || !userData.token || !userData.refreshToken) {
+      return res.redirect(
+        `${process.env.FRONT_URL}/signin?error=auth_slack_failed`
+      );
+    }
+
+    const { token, refreshToken } = userData;
+
+    // Secure true for production, secure: true need https
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // Use custom redirect URL from state data if available
+    const queryParams = `?token=${token}`;
+
+    return res.redirect(`${process.env.FRONT_URL}/auth-success${queryParams}`);
   })(req, res, next);
 }
 
@@ -508,6 +580,8 @@ const AuthController: IAuthController = {
   login,
   loginWithGoogle,
   loginWithGoogleCallback,
+  loginWithSlack,
+  loginWithSlackCallback,
   refresh,
   logout,
   forgotPassword,

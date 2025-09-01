@@ -11,6 +11,7 @@ const UserSchema = z.object({
   role: z.string().openapi({ example: "Member" }),
   timezone: z.string().openapi({ example: "Europe/Paris" }),
   googleId: z.number().nullable().openapi({ example: 78972475051234701234 }),
+  slackId: z.string().nullable().openapi({ example: "Z15CFAS8BWW" }),
   isVerified: z.boolean().openapi({ example: false }),
   dailyEmailReminder: z.boolean().openapi({ example: false }),
   email: z.string().email().openapi({ example: "joe.smith@mail.fr" }),
