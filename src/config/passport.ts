@@ -168,8 +168,7 @@ const slackStrategy = new SlackStrategy(
   {
     clientID: SLACK_CLIENT_ID,
     clientSecret: SLACK_CLIENT_SECRET,
-    // callbackURL: `https://localhost:1700/api/auth/slack/callback`,
-    callbackURL: `https://9eafcadf750f.ngrok-free.app/api/auth/slack/callback`,
+    callbackURL: `${process.env.API_URL}/auth/slack/callback`,
     passReqToCallback: true,
     scope: [
       // "users.profile:read",
