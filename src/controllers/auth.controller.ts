@@ -575,6 +575,23 @@ async function deleteUser(req: Request, res: Response) {
   }
 }
 
+// Use to identify user from slack id
+// usefull for slack bot
+async function getUserIdFromSlackId(req: Request, res: Response) {
+  try {
+    const slackId = req.params.id;
+    const user = await User.findOne({ slackId });
+
+    if (!user) {
+      throw NotFound;
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ userId: user._id });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
 const AuthController: IAuthController = {
   register,
   login,
@@ -592,6 +609,7 @@ const AuthController: IAuthController = {
   resendVerificationEmail,
   getProfile,
   updateProfile,
+  getUserIdFromSlackId,
   deleteUser,
 };
 

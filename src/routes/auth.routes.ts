@@ -7,6 +7,9 @@ import {
   RegisterUserSchema,
   UpdateUserProfileSchema,
 } from "~/schemas/user.schema";
+import verifyApiKey from "~/middlewares/verifyApiKey.handler";
+
+import IdSchema from "~/schemas/id.schema";
 
 const authRoutes = Router();
 
@@ -101,6 +104,15 @@ authRoutes.put(
   validateRequest({ body: UpdateUserProfileSchema }),
   requireAuth,
   AuthController.updateProfile
+);
+
+authRoutes.get(
+  "/slack/user/:id",
+  validateRequest({
+    params: IdSchema,
+  }),
+  verifyApiKey,
+  AuthController.getUserIdFromSlackId
 );
 
 authRoutes.delete("/account", requireAuth, AuthController.deleteUser);
