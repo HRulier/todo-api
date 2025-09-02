@@ -5,7 +5,7 @@ const IdSchema = z.object({
 });
 
 export const SlackIdSchema = z.object({
-  slackId: z.string().regex(/^[0-9a-fA-F]{11}$/, "Invalid Slack ID"),
+  slackId: z.string().regex(/^[0-9a-zA-Z]{11}$/, "Invalid Slack ID"),
 });
 
 export default IdSchema;

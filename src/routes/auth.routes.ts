@@ -107,7 +107,7 @@ authRoutes.put(
 );
 
 authRoutes.get(
-  "/slack/user/:id",
+  "/slack/user/:slackId",
   validateRequest({
     params: SlackIdSchema,
   }),

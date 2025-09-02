@@ -23,7 +23,7 @@ import {
   resetTokenExpiredResponse,
   userAlreadyVerifiedExample,
 } from "~/openapi/examples/auth.examples";
-import IdSchema from "~/schemas/id.schema";
+import { SlackIdSchema } from "~/schemas/id.schema";
 import {
   unauthorizedResponse,
   internalServerResponse,
@@ -486,13 +486,13 @@ export const registerAuthPaths = () => {
 
   registry.registerPath({
     method: "get",
-    path: "/auth/slack/user/{id}",
+    path: "/auth/slack/user/{slackId}",
     tags: ["Authentication"],
     summary: "Get user id from a slackId",
     description:
       "Get user id from a slackId, usefull for slack bot and automation workflows",
     request: {
-      params: IdSchema,
+      params: SlackIdSchema,
     },
     responses: {
       [HTTP_STATUS.OK]: {

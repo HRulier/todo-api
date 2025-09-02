@@ -579,7 +579,7 @@ async function deleteUser(req: Request, res: Response) {
 // usefull for slack bot
 async function getUserIdFromSlackId(req: Request, res: Response) {
   try {
-    const slackId = req.params.id;
+    const { slackId } = req.params;
     const user = await User.findOne({ slackId });
 
     if (!user) {
