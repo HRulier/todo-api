@@ -9,7 +9,7 @@ import {
 } from "~/schemas/user.schema";
 import verifyApiKey from "~/middlewares/verifyApiKey.handler";
 
-import IdSchema from "~/schemas/id.schema";
+import { SlackIdSchema } from "~/schemas/id.schema";
 
 const authRoutes = Router();
 
@@ -109,7 +109,7 @@ authRoutes.put(
 authRoutes.get(
   "/slack/user/:id",
   validateRequest({
-    params: IdSchema,
+    params: SlackIdSchema,
   }),
   verifyApiKey,
   AuthController.getUserIdFromSlackId
