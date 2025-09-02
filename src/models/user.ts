@@ -35,6 +35,10 @@ const UserSchema = new Schema(
       type: Number,
       default: null,
     },
+    slackId: {
+      type: String,
+      default: null,
+    },
     isVerified: {
       type: Boolean,
       required: true,
