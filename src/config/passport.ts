@@ -170,12 +170,7 @@ const slackStrategy = new SlackStrategy(
     clientSecret: SLACK_CLIENT_SECRET,
     callbackURL: `${process.env.API_URL}/auth/slack/callback`,
     passReqToCallback: true,
-    scope: [
-      // "users.profile:read",
-      // "users:read",
-      // "users:read.email",
-      "identity.basic",
-    ],
+    scope: ["identity.basic", "email"],
   },
   async (
     req: any,
