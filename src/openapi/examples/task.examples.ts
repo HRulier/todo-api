@@ -1,7 +1,11 @@
 import { getErrorResponseConfig } from "~/openapi/utils";
 import { generateZodValidationErrorExample } from "~/utils/zod/zod-error-generator";
 import IdSchema from "~/schemas/id.schema";
-import { CreateTaskSchema, GetTasksQuerySchema } from "~/schemas/task.schema";
+import {
+  CreateTaskSchema,
+  CreateTasksWithUserSchema,
+  GetTasksQuerySchema,
+} from "~/schemas/task.schema";
 
 // -------------------------------------
 // Invalid Data
@@ -18,6 +22,16 @@ const invalidTaskExample = {
   dueDate: "date",
 };
 
+const invalidTasksBulkExample = {
+  user: "68b83c279a7ad44d7be69bfe",
+  tasks: [
+    {
+      description: 10,
+      dueDate: "date",
+    },
+  ],
+};
+
 const invalidGetTasksQueryExample = {
   minDate: "date",
 };
@@ -29,6 +43,11 @@ const invalidGetTasksQueryExample = {
 const taskValidationExample = generateZodValidationErrorExample(
   CreateTaskSchema,
   invalidTaskExample
+);
+
+const tasksBulkValidationExample = generateZodValidationErrorExample(
+  CreateTasksWithUserSchema,
+  invalidTasksBulkExample
 );
 
 const taskIdValidationExample = generateZodValidationErrorExample(IdSchema, {
@@ -43,6 +62,7 @@ const getTasksValidationExample = generateZodValidationErrorExample(
 export {
   // Validation errors
   taskValidationExample,
+  tasksBulkValidationExample,
   taskIdValidationExample,
   getTasksValidationExample,
   // Error responses

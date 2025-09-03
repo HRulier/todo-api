@@ -58,6 +58,15 @@ const CreateTaskSchema = z.object({
     }),
 });
 
+const CreateTasksWithUserSchema = z.object({
+  user: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ID")
+    .openapi({
+      example: "67c5c2e9656ca8c7f95f7d52",
+    }),
+  tasks: z.array(CreateTaskSchema),
+});
 // Set fields as optional for update
 const UpdateTaskSchema = CreateTaskSchema.partial().extend({
   completed: z.boolean().default(false).openapi({ example: true }),
@@ -65,4 +74,10 @@ const UpdateTaskSchema = CreateTaskSchema.partial().extend({
 
 registry.register("Task", TaskSchema);
 
-export { TaskSchema, CreateTaskSchema, UpdateTaskSchema, GetTasksQuerySchema };
+export {
+  TaskSchema,
+  CreateTaskSchema,
+  CreateTasksWithUserSchema,
+  UpdateTaskSchema,
+  GetTasksQuerySchema,
+};

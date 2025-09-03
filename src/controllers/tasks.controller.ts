@@ -1,10 +1,11 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 import HTTP_STATUS from "~/utils/http_status";
 import { NotFoundError, handleError } from "~/utils/errors";
 import { isValid } from "date-fns";
 import {
   ITaskController,
   CreateTaskInput,
+  CreateTasksWithUserInput,
   UpdateTaskInput,
 } from "~/types/task";
 import { IAuthentificateRequest } from "~/types/auth";
@@ -109,6 +110,56 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
   }
 }
 
+async function createTasks(req: Request, res: Response) {
+  try {
+    const { user, tasks }: CreateTasksWithUserInput = req.body;
+
+    // Group tasks by dueDate
+    const tasksByDueDate = new Map<string, CreateTaskInput[]>();
+    tasks.forEach((task: CreateTaskInput) => {
+      const dateKey = task.dueDate.toISOString();
+      if (!tasksByDueDate.has(dateKey)) {
+        tasksByDueDate.set(dateKey, []);
+      }
+      tasksByDueDate.get(dateKey)!.push(task);
+    });
+
+    const newTasks: (CreateTaskInput & { user: string })[] = [];
+
+    // Process tasks for each dueDate
+    for (const [dateKey, groupTasks] of tasksByDueDate) {
+      const dueDate = new Date(dateKey);
+
+      const minPositionTask = await Task.findOne({
+        user,
+        dueDate,
+      }).sort({ position: 1 });
+
+      let startingPosition = minPositionTask
+        ? minPositionTask.position - 1
+        : 1024;
+
+      groupTasks.forEach((task, index) => {
+        newTasks.push({
+          description: task.description,
+          dueDate: task.dueDate,
+          user: user,
+          position: startingPosition - index,
+          tags: task.tags || [],
+        });
+      });
+    }
+
+    const createdTasks = await Task.insertMany(newTasks);
+
+    await Task.populate(createdTasks, populateTask);
+
+    return res.status(HTTP_STATUS.CREATED).json({ tasks: createdTasks });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
 async function updateTask(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
@@ -153,6 +204,7 @@ const TaskController: ITaskController = {
   getTasks,
   getTaskById,
   createTask,
+  createTasks,
   updateTask,
   deleteTask,
 };
