@@ -10,6 +10,7 @@ export default {
   testMatch: ["**/tests/**/*.test.ts"],
   moduleNameMapper: {
     "^~/(.*)$": "<rootDir>/src/$1",
+    "nanoid": "<rootDir>/tests/__mocks__/nanoid.js",
   },
   setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
 };

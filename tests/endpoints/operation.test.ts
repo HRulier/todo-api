@@ -2,13 +2,34 @@ import request from "supertest";
 import dotenv from "dotenv";
 import app from "~/server";
 import Operation from "~/models/operation";
+import User from "~/models/user";
+import Task from "~/models/task";
 import configDotenv from "~/config/dot-env";
 
 dotenv.config(configDotenv);
 
 describe("Operation endpoints tests", () => {
+  let slackUser: any;
+  
+  beforeAll(async () => {
+    // Create a Slack user for testing PATCH operations
+    slackUser = new User({
+      email: "slackuser@test.com",
+      password: "?testtest321!",
+      isVerified: true,
+      slackId: "U09DRSE6HDW",
+      profile: {
+        firstName: "Slack",
+        lastName: "User",
+      },
+    });
+    await slackUser.save();
+  });
+
   afterAll(async () => {
     await Operation.deleteMany({});
+    await Task.deleteMany({});
+    await User.deleteOne({ email: "slackuser@test.com" });
   });
 
   describe("POST /operations", () => {
@@ -161,6 +182,138 @@ describe("Operation endpoints tests", () => {
       const { status } = await request(app)
         .post("/api/operations")
         .send(operationData)
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(400);
+    });
+  });
+
+  describe("PATCH /operations/:shortId", () => {
+    let testOperation: any;
+    
+    beforeEach(async () => {
+      // Create a pending operation for testing
+      testOperation = new Operation({
+        user: slackUser._id,
+        source: "slack",
+        type: "bulk_create_tasks",
+        status: "pending",
+        payload: {
+          tasks: [
+            {
+              description: "Test Task 1",
+              dueDate: "2025-07-18T14:55:37.403Z",
+            },
+            {
+              description: "Test Task 2", 
+              dueDate: "2025-07-18T14:55:37.403Z",
+            },
+          ],
+        },
+        metadata: {
+          channel: "D09D3PD3RB8",
+          approvedBy: null,
+          approvedAt: null,
+        },
+      });
+      await testOperation.save();
+    });
+
+    afterEach(async () => {
+      await Operation.deleteMany({});
+      await Task.deleteMany({});
+    });
+
+    it("Should approve operation and create tasks", async () => {
+      const { status, body } = await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({ status: "approved" })
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(200);
+      expect(body).toHaveProperty("operation");
+      expect(body.operation.status).toBe("approved");
+      expect(body.operation.shortId).toBe(testOperation.shortId);
+
+      // Verify tasks were created
+      const createdTasks = await Task.find({ user: slackUser._id });
+      expect(createdTasks).toHaveLength(2);
+      expect(createdTasks[0].description).toBe("Test Task 1");
+      expect(createdTasks[1].description).toBe("Test Task 2");
+    });
+
+    it("Should reject operation without creating tasks", async () => {
+      const { status, body } = await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({ status: "rejected" })
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(200);
+      expect(body).toHaveProperty("operation");
+      expect(body.operation.status).toBe("rejected");
+      expect(body.operation.shortId).toBe(testOperation.shortId);
+
+      // Verify no tasks were created
+      const createdTasks = await Task.find({ user: slackUser._id });
+      expect(createdTasks).toHaveLength(0);
+    });
+
+    it("Should return 404 for non-existent operation", async () => {
+      const { status, body } = await request(app)
+        .patch("/api/operations/NONEXISTENT")
+        .send({ status: "approved" })
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(404);
+      expect(body.message).toBe("The requested operation doest not exist or has already been executed");
+    });
+
+    it("Should return 404 for already processed operation", async () => {
+      // First approve the operation
+      await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({ status: "approved" })
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      // Try to approve again
+      const { status, body } = await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({ status: "rejected" })
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(404);
+      expect(body.message).toBe("The requested operation doest not exist or has already been executed");
+    });
+
+    it("Should return 401 for missing API key", async () => {
+      const { status } = await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({ status: "approved" })
+        .set("Accept", "application/json");
+
+      expect(status).toBe(401);
+    });
+
+    it("Should return 400 for invalid status", async () => {
+      const { status } = await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({ status: "invalid_status" })
+        .set("x-api-key", `${process.env.API_KEY}`)
+        .set("Accept", "application/json");
+
+      expect(status).toBe(400);
+    });
+
+    it("Should return 400 for missing status", async () => {
+      const { status } = await request(app)
+        .patch(`/api/operations/${testOperation.shortId}`)
+        .send({})
         .set("x-api-key", `${process.env.API_KEY}`)
         .set("Accept", "application/json");
 
