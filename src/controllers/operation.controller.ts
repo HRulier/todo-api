@@ -1,12 +1,17 @@
 import { Response, Request } from "express";
 import HTTP_STATUS from "~/utils/http_status";
-import { CustomError } from "~/utils/errors";
+import { CustomError, NotFoundError } from "~/utils/errors";
 import { handleError } from "~/utils/errors";
 import { IOperationController } from "~/types/operation";
 import User from "~/models/user";
 import { CreateTaskSchema } from "~/schemas/task.schema";
+import { createTasks } from "~/services/tasks.service";
 import Operation from "~/models/operation";
 import { ZodError } from "zod";
+
+const NotFound = new NotFoundError(
+  "The requested operation doest not exist or has already been executed"
+);
 
 async function createOperation(req: Request, res: Response) {
   try {
@@ -31,6 +36,7 @@ async function createOperation(req: Request, res: Response) {
       metadata: metadata || {},
     });
 
+    // Validate tasks before saving
     if (type === "bulk_create_tasks") {
       const tasks = payload.tasks;
 
@@ -67,8 +73,45 @@ async function createOperation(req: Request, res: Response) {
   }
 }
 
+async function updateAndExecuteOperation(req: Request, res: Response) {
+  try {
+    const { shortId } = req.params;
+    const { status } = req.body;
+
+    const operation = await Operation.findOne({ shortId, status: "pending" });
+
+    if (!operation) {
+      throw NotFound;
+    }
+
+    if (
+      operation.status === "pending" &&
+      operation.type === "bulk_create_tasks" &&
+      status === "approved"
+    ) {
+      const newTasks = operation.payload.tasks.map((task: any) => ({
+        ...task,
+      }));
+
+      await createTasks(newTasks, operation.user);
+    }
+
+    // find by status prevent to update an already executed operation
+    const updatedOperation = await Operation.findOneAndUpdate(
+      { shortId, status: "pending" },
+      { status },
+      { new: true }
+    );
+
+    return res.status(HTTP_STATUS.OK).json({ operation: updatedOperation });
+  } catch (error: unknown) {
+    return handleError(res, req, error);
+  }
+}
+
 const OperationController: IOperationController = {
   createOperation,
+  updateAndExecuteOperation,
 };
 
 export default OperationController;

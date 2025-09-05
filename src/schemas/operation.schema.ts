@@ -14,6 +14,9 @@ const OperationSchema = z.object({
     .openapi({
       example: "67c5c2e9656ca8c7f95f7d52",
     }),
+  shortId: z.string().openapi({
+    example: "MFAFU856DVV",
+  }),
   source: z.enum(["slack"]).openapi({
     example: "slack",
     description: "Source of the operation",
