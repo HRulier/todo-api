@@ -10,7 +10,7 @@ import Operation from "~/models/operation";
 import { ZodError } from "zod";
 
 const NotFound = new NotFoundError(
-  "The requested operation doest not exist or has already been executed"
+  "The requested operation doest not exist or has already been executed",
 );
 
 async function createOperation(req: Request, res: Response) {
@@ -20,7 +20,7 @@ async function createOperation(req: Request, res: Response) {
     let userId: string | null = null;
 
     if (user && source === "slack") {
-      const slackUser = await User.findOne({ slackId: user.id });
+      const slackUser = await User.findOne({ slackId: user });
       userId = slackUser?._id || null;
     }
 
@@ -100,7 +100,7 @@ async function updateAndExecuteOperation(req: Request, res: Response) {
     const updatedOperation = await Operation.findOneAndUpdate(
       { shortId, status: "pending" },
       { status },
-      { new: true }
+      { new: true },
     );
 
     return res.status(HTTP_STATUS.OK).json({ operation: updatedOperation });
