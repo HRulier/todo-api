@@ -16,12 +16,14 @@ const getTestTasks = (userId: string) => [
   {
     description: "Préparer la présentation pour la réunion client",
     dueDate: "2025-06-27T14:30:00.000+00:00",
+    priority: "high",
     completed: false,
     user: userId,
   },
   {
     description: "Faire les courses pour le week-end",
     dueDate: "2025-07-01T18:45:00.000+00:00",
+    priority: "medium",
     completed: true,
     user: userId,
   },
@@ -115,7 +117,7 @@ describe("Tasks endpoints tests", () => {
       expect(status).toBe(200);
       expect(tasks.length).toBe(6);
       expect(
-        tasks.every((task: TaskDocument) => task.user === user._id.toString())
+        tasks.every((task: TaskDocument) => task.user === user._id.toString()),
       ).toBe(true);
     });
 
@@ -146,26 +148,28 @@ describe("Tasks endpoints tests", () => {
     });
 
     it("Should return planned tasks on day the 2025-07-03 for the authenticated user", async () => {
-      const date = "2025-07-03";
+      const minDate = "2025-07-02T23:00:00.000Z";
+      const maxDate = "2025-07-03T23:00:00.000Z";
       const {
         status,
         body: { tasks },
       } = await request(app)
-        .get(`/api/tasks?minDate=${date}&maxDate=${date}`)
+        .get(`/api/tasks?minDate=${minDate}&maxDate=${maxDate}`)
         .set("Authorization", `Bearer ${credentials.token}`);
 
       expect(status).toBe(200);
       expect(tasks.length).toBe(2);
       expect(
         tasks.every(
-          (task: TaskDocument) => format(task.dueDate, "yyyy-MM-dd") === date
-        )
+          (task: TaskDocument) =>
+            format(task.dueDate, "yyyy-MM-dd") === "2025-07-03",
+        ),
       ).toBe(true);
     });
 
     it("Should return planned tasks between 2025-06-30 and 2025-07-06 for the authenticated user", async () => {
-      const minDate = "2025-06-30";
-      const maxDate = "2025-07-06";
+      const minDate = "2025-06-30T23:00:00.000Z";
+      const maxDate = "2025-07-06T23:00:00.000Z";
       const {
         status,
         body: { tasks },
@@ -320,7 +324,7 @@ describe("Tasks endpoints tests", () => {
 
     it("should return 401, unauthorized", async () => {
       const { status } = await request(app).delete(
-        `/api/tasks/${testTask._id.toString()}`
+        `/api/tasks/${testTask._id.toString()}`,
       );
 
       expect(status).toBe(401);

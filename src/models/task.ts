@@ -24,6 +24,11 @@ const TaskSchema = new Schema(
       type: Number,
       default: 1024,
     },
+    priority: {
+      type: String,
+      default: "low",
+      enum: ["low", "medium", "high"],
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -42,7 +47,7 @@ const TaskSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model<TaskDocument>("Task", TaskSchema);

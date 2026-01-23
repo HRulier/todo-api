@@ -23,6 +23,7 @@ export type TaskDocument = CreateTaskInput & {
   updatedAt?: Date;
   completed: boolean;
   position: number;
+  priority: string;
   user: IUser;
   tags: TaskDocument[];
 };
