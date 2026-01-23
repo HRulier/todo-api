@@ -66,7 +66,7 @@ async function getTaskById(req: IAuthentificateRequest, res: Response) {
     const user = req.user as IUser;
     const { id } = req.params;
     const task = await Task.findOne({ _id: id, user: user._id }).populate(
-      populateTask
+      populateTask,
     );
 
     if (!task) {
@@ -83,7 +83,7 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
   try {
     const user = req.user as IUser;
     const createData: CreateTaskInput = req.body;
-    let { position = 1024, dueDate, tags = [] } = createData;
+    let { position = 1024, priority, dueDate, tags = [] } = createData;
 
     if (position === 1024) {
       const minPositionTask = await Task.findOne({
@@ -98,6 +98,7 @@ async function createTask(req: IAuthentificateRequest, res: Response) {
       ...createData,
       user: user._id,
       position,
+      priority,
       tags,
     });
     await task.save();
@@ -145,6 +146,7 @@ async function createTasks(req: Request, res: Response) {
           dueDate: task.dueDate,
           user: user,
           position: startingPosition - index,
+          priority: task.priority,
           tags: task.tags || [],
         });
       });
@@ -171,7 +173,7 @@ async function updateTask(req: IAuthentificateRequest, res: Response) {
       updateData,
       {
         new: true,
-      }
+      },
     ).populate(populateTask);
 
     if (!task) {
