@@ -11,9 +11,18 @@ dotenv.config(configDotenv);
 
 const app = express();
 
+const corsOrigin = (() => {
+  const raw = process.env.FRONT_URL_CORS_ORIGIN ?? "";
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+})();
+
 app.use(
   cors({
-    origin: process.env.FRONT_URL_CORS_ORIGIN,
+    origin: corsOrigin,
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Origin",
@@ -24,7 +33,7 @@ app.use(
       "Access-Control-Allow-Credentials",
     ],
     credentials: true,
-  }),
+  })
 );
 
 app.set("trust proxy", 1);
