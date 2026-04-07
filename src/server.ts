@@ -31,7 +31,10 @@ app.use(
       "Accept",
       "Authorization",
       "Access-Control-Allow-Credentials",
+      // Required for MCP clients that send the session header
+      "Mcp-Session-Id",
     ],
+    exposedHeaders: ["Mcp-Session-Id"],
     credentials: true,
   })
 );

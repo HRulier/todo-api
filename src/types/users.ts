@@ -21,6 +21,7 @@ export interface IUser extends Document {
   resetPasswordExpires: number;
   verificationToken: string | null;
   verificationTokenExpires: number;
+  mcpRefreshTokenJti: string | null;
   createdAt: Date;
   comparePassword: (password: string) => Promise<boolean>;
 }

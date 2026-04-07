@@ -6,6 +6,6 @@ dist/
 structure.md
 CLAUDE.md
 
-/docs/*
+docs/
 
 test-mcp-oauth.sh

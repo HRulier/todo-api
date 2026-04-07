@@ -58,6 +58,7 @@ const UserSchema = new Schema(
     verificationTokenExpires: { type: Number, default: null },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Number, default: null },
+    mcpRefreshTokenJti: { type: String, default: null },
   },
   {
     timestamps: true,

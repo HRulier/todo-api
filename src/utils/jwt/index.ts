@@ -37,4 +37,35 @@ function generateRefreshToken(user: { _id: string; email: string }): string {
   });
 }
 
+export function generateMcpAccessToken(
+  user: { _id: string; email: string },
+  scope: string,
+  resource: string
+): string {
+  if (!process.env.ACCESS_TOKEN_SECRET) {
+    throw new Error("Missing ACCESS_TOKEN_SECRET environment variable.");
+  }
+  return jwt.sign(
+    { data: { _id: user._id, email: user.email }, scope, resource },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "1h" }
+  );
+}
+
+export function generateMcpRefreshToken(
+  user: { _id: string },
+  scope: string,
+  resource: string,
+  jti: string
+): string {
+  if (!process.env.REFRESH_TOKEN_SECRET) {
+    throw new Error("Missing REFRESH_TOKEN_SECRET environment variable.");
+  }
+  return jwt.sign(
+    { _id: user._id, jti, scope, resource },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "30d" }
+  );
+}
+
 export { generateAccessToken, generateRefreshToken };
