@@ -39,7 +39,7 @@ async function register(req: Request, res: Response) {
     if (existingUser) {
       throw new CustomError(
         "That email address is already in use.",
-        HTTP_STATUS.UNPROCESSABLE_ENTITY
+        HTTP_STATUS.UNPROCESSABLE_ENTITY,
       );
     }
 
@@ -70,7 +70,7 @@ async function register(req: Request, res: Response) {
       VerifiedUserEmail({
         username: `${user.profile.firstName} ${user.profile.lastName}`,
         url,
-      })
+      }),
     );
 
     res.status(HTTP_STATUS.CREATED).json({
@@ -108,7 +108,6 @@ async function login(req: IAuthentificateRequest, res: Response) {
       user: userInfo,
     });
   } catch (error: unknown) {
-    console.log("catch error");
     return handleError(res, req, error);
   }
 }
@@ -116,7 +115,7 @@ async function login(req: IAuthentificateRequest, res: Response) {
 async function loginWithGoogle(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const redirectUrl = (req.query.redirectUrl || "") as string;
@@ -159,12 +158,12 @@ async function loginWithGoogle(
 async function loginWithGoogleCallback(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   passport.authenticate("google", { session: false }, (err, data) => {
     if (err || !data) {
       return res.redirect(
-        `${process.env.FRONT_URL}/signin?error=auth_google_failed`
+        `${process.env.FRONT_URL}/signin?error=auth_google_failed`,
       );
     }
 
@@ -173,7 +172,7 @@ async function loginWithGoogleCallback(
 
     if (!userData || !userData.token || !userData.refreshToken) {
       return res.redirect(
-        `${process.env.FRONT_URL}/signin?error=auth_google_failed`
+        `${process.env.FRONT_URL}/signin?error=auth_google_failed`,
       );
     }
 
@@ -242,12 +241,12 @@ async function loginWithSlack(req: Request, res: Response, next: NextFunction) {
 async function loginWithSlackCallback(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   passport.authenticate("Slack", { session: false }, (err: any, data: any) => {
     if (err || !data) {
       return res.redirect(
-        `${process.env.FRONT_URL}/signin?error=auth_slack_failed`
+        `${process.env.FRONT_URL}/signin?error=auth_slack_failed`,
       );
     }
 
@@ -256,7 +255,7 @@ async function loginWithSlackCallback(
 
     if (!userData || !userData.token || !userData.refreshToken) {
       return res.redirect(
-        `${process.env.FRONT_URL}/signin?error=auth_slack_failed`
+        `${process.env.FRONT_URL}/signin?error=auth_slack_failed`,
       );
     }
 
@@ -350,7 +349,7 @@ async function forgotPassword(req: Request, res: Response) {
     if (!user) {
       throw new CustomError(
         "Can't find user for this email",
-        HTTP_STATUS.NOT_FOUND
+        HTTP_STATUS.NOT_FOUND,
       );
     }
 
@@ -368,7 +367,7 @@ async function forgotPassword(req: Request, res: Response) {
       ResetPassword({
         username: `${user.profile.firstName} ${user.profile.lastName}`,
         url,
-      })
+      }),
     );
 
     return res.status(HTTP_STATUS.OK).json({
@@ -390,7 +389,7 @@ async function resetPassword(req: Request, res: Response) {
     if (!user) {
       throw new CustomError(
         "Password reset token is invalid or has expired.",
-        HTTP_STATUS.UNPROCESSABLE_ENTITY
+        HTTP_STATUS.UNPROCESSABLE_ENTITY,
       );
     }
 
@@ -436,7 +435,7 @@ async function changePassword(req: IAuthentificateRequest, res: Response) {
     if (!passwordMatch) {
       throw new CustomError(
         "Current password is incorrect",
-        HTTP_STATUS.UNPROCESSABLE_ENTITY
+        HTTP_STATUS.UNPROCESSABLE_ENTITY,
       );
     }
 
@@ -485,7 +484,7 @@ async function resendVerificationEmail(req: Request, res: Response) {
     if (user.isVerified) {
       throw new CustomError(
         "This account has already been verified.",
-        HTTP_STATUS.BAD_REQUEST
+        HTTP_STATUS.BAD_REQUEST,
       );
     }
 
@@ -506,7 +505,7 @@ async function resendVerificationEmail(req: Request, res: Response) {
       VerifiedUserEmail({
         username: `${user.profile.firstName} ${user.profile.lastName}`,
         url,
-      })
+      }),
     );
 
     res.status(HTTP_STATUS.OK).json({
