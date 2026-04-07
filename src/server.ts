@@ -11,12 +11,18 @@ dotenv.config(configDotenv);
 
 const app = express();
 
+const corsOrigin = (() => {
+  const raw = process.env.FRONT_URL_CORS_ORIGIN ?? "";
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+})();
+
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? "https://todo-app.loopness.fr"
-        : ["http://localhost:5173", "http://192.168.1.58:5173"],
+    origin: corsOrigin,
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Origin",
@@ -29,6 +35,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(cookieParser());

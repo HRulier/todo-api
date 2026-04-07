@@ -15,13 +15,13 @@
     "type": "git",
     "url": "git+https://github.com/HRulier/todo-api.git"
   },
-  "author": "",
+  "author": "HRulier",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/HRulier/todo-api/issues"
   },
   "homepage": "https://github.com/HRulier/todo-api#readme",
-  "description": "",
+  "description": "RESTful API for a Todo application — Express.js, TypeScript, MongoDB with JWT & OAuth2 authentication",
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
@@ -64,11 +64,13 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.11.0",
     "morgan": "^1.10.0",
+    "nanoid": "^5.1.5",
     "nodemon": "^3.1.9",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "passport-slack-oauth2": "^1.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "resend": "^4.1.2",

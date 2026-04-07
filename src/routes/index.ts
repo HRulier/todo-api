@@ -12,6 +12,7 @@ import AuthRoutes from "./auth.routes";
 import TasksRoutes from "./task.routes";
 import TagsRoutes from "./tag.routes";
 import JobsRoutes from "./job.routes";
+import OperationRoutes from "./operation.routes";
 
 import { createOpenApiDocument } from "~/openapi";
 dotenv.config(dotEnvConfig);
@@ -32,6 +33,7 @@ export default function (app: Application) {
   apiRoutes.use("/tasks", TasksRoutes);
   apiRoutes.use("/tags", TagsRoutes);
   apiRoutes.use("/jobs", JobsRoutes);
+  apiRoutes.use("/operations", OperationRoutes);
 
   // Set url for API group routes
   app.use("/api", apiRoutes);

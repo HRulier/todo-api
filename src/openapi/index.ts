@@ -29,6 +29,11 @@ export const createOpenApiDocument = () => {
     tags: [
       { name: "Authentication", description: "Auth management operations" },
       { name: "Tasks", description: "Tasks management operations" },
+      {
+        name: "Operations",
+        description:
+          "Operations management, operations are created by external service through API calls",
+      },
     ],
   });
 };

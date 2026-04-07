@@ -15,6 +15,12 @@ export interface IAuthController {
     res: Response,
     next: NextFunction
   ) => void;
+  loginWithSlack: (req: Request, res: Response, next: NextFunction) => void;
+  loginWithSlackCallback: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => void;
   refresh: (req: Request, res: Response) => void;
   logout: (req: Request, res: Response) => void;
   forgotPassword: (req: Request, res: Response) => void;
@@ -25,5 +31,6 @@ export interface IAuthController {
   resendVerificationEmail: (req: Request, res: Response) => void;
   getProfile: (req: IAuthentificateRequest, res: Response) => void;
   updateProfile: (req: IAuthentificateRequest, res: Response) => void;
+  getUserIdFromSlackId: (req: Request, res: Response) => void;
   deleteUser: (req: IAuthentificateRequest, res: Response) => void;
 }

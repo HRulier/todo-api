@@ -2,11 +2,13 @@ import { Router } from "express";
 import TaskController from "~/controllers/tasks.controller";
 import { requireAuth } from "~/middlewares/auth.handler";
 import validateRequest from "~/middlewares/validateRequest.handler";
+import verifyApiKey from "~/middlewares/verifyApiKey.handler";
 import IdSchema from "~/schemas/id.schema";
 import {
   CreateTaskSchema,
   UpdateTaskSchema,
   GetTasksQuerySchema,
+  CreateTasksWithUserSchema,
 } from "~/schemas/task.schema";
 
 const tasksRoutes = Router();
@@ -34,6 +36,15 @@ tasksRoutes.post(
   requireAuth,
   validateRequest({ body: CreateTaskSchema }),
   TaskController.createTask
+);
+
+tasksRoutes.post(
+  "/bulk",
+  validateRequest({
+    body: CreateTasksWithUserSchema,
+  }),
+  verifyApiKey,
+  TaskController.createTasks
 );
 
 tasksRoutes.put(

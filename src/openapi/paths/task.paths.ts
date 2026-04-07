@@ -5,11 +5,13 @@ import {
   TaskSchema,
   CreateTaskSchema,
   UpdateTaskSchema,
+  CreateTasksWithUserSchema,
 } from "~/schemas/task.schema";
 import {
   taskNotFoundResponse,
   taskIdValidationExample,
   taskValidationExample,
+  tasksBulkValidationExample,
   getTasksValidationExample,
 } from "../examples/task.examples";
 import { ErrorSchema } from "~/schemas/error.schema";
@@ -145,6 +147,45 @@ export const registerTaskPaths = () => {
           "application/json": {
             schema: ErrorSchema,
             example: taskValidationExample,
+          },
+        },
+      },
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  // POST /tasks/bulk
+  registry.registerPath({
+    method: "post",
+    path: "/tasks/bulk",
+    tags: ["Tasks"],
+    summary: "Create a new tasks for a specific user from Slack",
+    security: [{ bearerAuth: [] }],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: CreateTasksWithUserSchema,
+          },
+        },
+      },
+    },
+    responses: {
+      [HTTP_STATUS.CREATED]: {
+        description: "Tasks created successfully",
+        content: {
+          "application/json": {
+            schema: z.object({ tasks: z.array(TaskSchema) }),
+          },
+        },
+      },
+      [HTTP_STATUS.BAD_REQUEST]: {
+        description: "Validation error - missing or invalid fields",
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+            example: tasksBulkValidationExample,
           },
         },
       },

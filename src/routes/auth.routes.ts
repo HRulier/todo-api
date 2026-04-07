@@ -7,6 +7,9 @@ import {
   RegisterUserSchema,
   UpdateUserProfileSchema,
 } from "~/schemas/user.schema";
+import verifyApiKey from "~/middlewares/verifyApiKey.handler";
+
+import { SlackIdSchema } from "~/schemas/id.schema";
 
 const authRoutes = Router();
 
@@ -28,6 +31,11 @@ authRoutes.post(
 //Google OAuth2 endpoints
 authRoutes.get("/google", AuthController.loginWithGoogle);
 authRoutes.get("/google/callback", AuthController.loginWithGoogleCallback);
+// **** //
+
+//Slack OAuth2 endpoints
+authRoutes.get("/slack", AuthController.loginWithSlack);
+authRoutes.get("/slack/callback", AuthController.loginWithSlackCallback);
 // **** //
 
 authRoutes.post(
@@ -96,6 +104,15 @@ authRoutes.put(
   validateRequest({ body: UpdateUserProfileSchema }),
   requireAuth,
   AuthController.updateProfile
+);
+
+authRoutes.get(
+  "/slack/user/:slackId",
+  validateRequest({
+    params: SlackIdSchema,
+  }),
+  verifyApiKey,
+  AuthController.getUserIdFromSlackId
 );
 
 authRoutes.delete("/account", requireAuth, AuthController.deleteUser);

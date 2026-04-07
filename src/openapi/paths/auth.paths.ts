@@ -23,6 +23,7 @@ import {
   resetTokenExpiredResponse,
   userAlreadyVerifiedExample,
 } from "~/openapi/examples/auth.examples";
+import { SlackIdSchema } from "~/schemas/id.schema";
 import {
   unauthorizedResponse,
   internalServerResponse,
@@ -479,6 +480,35 @@ export const registerAuthPaths = () => {
       },
       [HTTP_STATUS.BAD_REQUEST]: userAlreadyVerifiedExample,
       [HTTP_STATUS.NOT_FOUND]: userNotFoundResponse,
+      [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
+    },
+  });
+
+  registry.registerPath({
+    method: "get",
+    path: "/auth/slack/user/{slackId}",
+    tags: ["Authentication"],
+    summary: "Get user id from a slackId",
+    description:
+      "Get user id from a slackId, usefull for slack bot and automation workflows",
+    request: {
+      params: SlackIdSchema,
+    },
+    responses: {
+      [HTTP_STATUS.OK]: {
+        description: "User found, returns user id",
+        content: {
+          "application/json": {
+            schema: z.object({
+              userId: z
+                .string()
+                .openapi({ example: "67c5c2e9656ca8c7f95f7d52" }),
+            }),
+          },
+        },
+      },
+      [HTTP_STATUS.NOT_FOUND]: userNotFoundResponse,
+      [HTTP_STATUS.UNAUTHORIZED]: unauthorizedResponse,
       [HTTP_STATUS.INTERNAL_SERVER_ERROR]: internalServerResponse,
     },
   });
