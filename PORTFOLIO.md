@@ -31,7 +31,7 @@ API REST d'une application de gestion de tâches. Le projet sert avant tout de t
 - Authentification email/mot de passe, Google OAuth2, Slack OAuth2
 - Gestion de compte : vérification d'email, réinitialisation de mot de passe
 - CRUD de tâches avec tags, priorité, date d'échéance et position (ordre manuel)
-- Opérations en lot sur les tâches (bulk update/delete) protégées par API Key
+- Création de tâches pilotée par n8n/Slack via un modèle `Operation` avec cycle d'approbation
 - Emails de rappel quotidiens envoyés à l'heure locale de chaque utilisateur
 - Documentation OpenAPI auto-générée et servie en live
 
@@ -59,6 +59,49 @@ middlewares/     → auth, validateRequest, rateLimiter, verifyApiKey
 - **OAuth state sécurisé** — le paramètre `state` encode en base64url la timezone et l'URL de redirection ; il est vérifié à la callback pour prévenir le CSRF.
 - **Erreurs typées** — hiérarchie de classes (`CustomError`, `NotFoundError`, `BadRequestError`, `UnauthorizedError`, `InternalError`) interceptées par un handler centralisé qui mappe vers les codes HTTP appropriés.
 - **Emails avec React** — les templates sont des composants React rendus server-side via `react-dom/server` ; le serveur de prévisualisation (`@react-email/preview-server`) est disponible en développement.
+
+---
+
+## Automatisation via n8n et Slack — modèle Operation
+
+L'un des axes techniques du projet est la création de tâches depuis des systèmes externes (Slack, n8n, et potentiellement tout autre outil capable de faire une requête HTTP) sans couplage direct à l'interface utilisateur.
+
+### Principe
+
+Plutôt que d'exposer directement l'endpoint de création de tâches, les systèmes externes passent par un modèle intermédiaire `Operation`. Chaque opération est persistée en base avec un statut `pending` et ne produit d'effet qu'après validation explicite. Cela introduit un cycle de vie clair :
+
+```
+[n8n / Slack] → POST /api/operations  →  Operation{status: "pending"}
+                                                  ↓ validation humaine ou automatisée
+               PATCH /api/operations/:shortId  →  Operation{status: "approved"}  →  tasks créées
+                                               ou  Operation{status: "rejected"}  →  rien
+```
+
+### Modèle Operation
+
+| Champ | Type | Détail |
+|---|---|---|
+| `shortId` | String (11 car.) | Identifiant lisible généré par nanoid (alphabet A-Z0-9), indexé unique |
+| `source` | Enum | `"slack"` — extensible à d'autres sources |
+| `type` | Enum | `"bulk_create_tasks"` — extensible à d'autres types d'opérations |
+| `status` | Enum | `"pending"` / `"approved"` / `"rejected"` |
+| `payload` | Mixed | Données des tâches à créer, validées contre `CreateTaskSchema` à l'ingestion |
+| `metadata.channel` | String | Canal Slack d'origine |
+| `metadata.approvedBy` | ObjectId | Utilisateur ayant approuvé |
+| `metadata.approvedAt` | Date | Horodatage de l'approbation |
+| `user` | ObjectId | Référence vers l'utilisateur propriétaire des tâches |
+
+### Points d'implémentation notables
+
+- **Résolution d'identité** — la requête entrante transmet un `slackId` ; le contrôleur résout l'utilisateur correspondant en base (`User.findOne({ slackId })`) avant de persister l'opération. Le couplage avec Slack est cantonné à cette étape.
+- **Validation du payload à l'ingestion** — les tâches contenues dans le payload sont validées contre `CreateTaskSchema` au moment du `POST`, pas au moment de l'exécution. Les erreurs de format remontent immédiatement au système appelant.
+- **Idempotence de l'approbation** — le `PATCH` utilise `findOneAndUpdate({ shortId, status: "pending" })` : une opération déjà approuvée ou rejetée ne peut pas être rejouée.
+- **Protection par API Key** — les deux endpoints (`POST` et `PATCH`) sont protégés par `verifyApiKey` (header `X-API-Key`), ils ne sont pas accessibles aux utilisateurs finaux.
+- **Traçabilité** — chaque opération reste en base après exécution, avec l'ensemble du contexte (source, canal, utilisateur, horodatage, payload original). L'audit est natif.
+
+### Extensibilité
+
+Le design est pensé pour absorber de nouvelles sources sans modifier la logique d'exécution : ajouter `"discord"` ou `"webhook"` à l'enum `source`, brancher un nouveau workflow n8n sur le même endpoint — les couches de validation, d'approbation et d'exécution restent inchangées.
 
 ---
 
