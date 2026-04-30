@@ -161,8 +161,6 @@ async function loginWithGoogleCallback(
   next: NextFunction,
 ) {
   passport.authenticate("google", { session: false }, (err, data) => {
-    console.log("loginWithGoogleCallback", err, data);
-
     if (err || !data) {
       return res.redirect(
         `${process.env.FRONT_URL}/signin?error=auth_google_failed`,
@@ -246,7 +244,6 @@ async function loginWithSlackCallback(
   next: NextFunction,
 ) {
   passport.authenticate("Slack", { session: false }, (err: any, data: any) => {
-    console.log("loginWithSlackCallback", err, data);
     if (err || !data) {
       return res.redirect(
         `${process.env.FRONT_URL}/signin?error=auth_slack_failed`,
