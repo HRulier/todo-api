@@ -21,7 +21,7 @@ export function authenticateOAuthToken(
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
-    const base = process.env.API_URL || "http://localhost:1700";
+    const base = process.env.MCP_BASE_URL || "http://localhost:1700";
     return res
       .status(HTTP_STATUS.UNAUTHORIZED)
       .set(

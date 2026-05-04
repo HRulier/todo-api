@@ -54,7 +54,7 @@ const localLogin = new LocalStrategy(
       console.log(err);
       return done(err);
     }
-  }
+  },
 );
 
 // Setting JWT strategy options
@@ -81,7 +81,7 @@ const jwtLogin = new JwtStrategy(
     } catch (err) {
       return done(err, false);
     }
-  }
+  },
 );
 
 // Google OAuth2
@@ -101,7 +101,7 @@ const googleStrategy = new GoogleStrategy(
     accessToken: any,
     refreshToken: any,
     profile: any,
-    done: any
+    done: any,
   ) {
     try {
       let stateData = null;
@@ -116,7 +116,7 @@ const googleStrategy = new GoogleStrategy(
 
           const decodedState = Buffer.from(
             req.query.state,
-            "base64url"
+            "base64url",
           ).toString();
 
           const stateObject = JSON.parse(decodedState);
@@ -156,7 +156,7 @@ const googleStrategy = new GoogleStrategy(
       console.error("Google OAuth strategy error:", error);
       return done(error, null);
     }
-  }
+  },
 );
 
 // Slack 0Auth2
@@ -177,7 +177,7 @@ const slackStrategy = new SlackStrategy(
     accessToken: any,
     refreshToken: any,
     profile: any,
-    done: any
+    done: any,
   ) => {
     let stateData = null;
 
@@ -191,7 +191,7 @@ const slackStrategy = new SlackStrategy(
 
         const decodedState = Buffer.from(
           req.query.state,
-          "base64url"
+          "base64url",
         ).toString();
 
         const stateObject = JSON.parse(decodedState);
@@ -225,7 +225,7 @@ const slackStrategy = new SlackStrategy(
     });
 
     done(null, { user });
-  }
+  },
 );
 
 passport.use(jwtLogin);

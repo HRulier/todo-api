@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import dotEnvConfig from "~/config/dot-env";
 import HTTP_STATUS from "~/utils/http_status";
+import { handleError, CustomError } from "~/utils/errors";
 import * as OAuthService from "../services/oauth.service";
 
 dotenv.config(dotEnvConfig);
@@ -10,19 +11,13 @@ dotenv.config(dotEnvConfig);
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getBaseUrl(): string {
-  return process.env.API_URL || "http://localhost:1700";
+  return process.env.MCP_BASE_URL || "http://localhost:1700";
 }
 
-/**
- * Encodes an object as a short-lived JWT used to bridge the login → consent
- * step without a server-side session. Signed with ACCESS_TOKEN_SECRET, expires
- * in 5 minutes.
- */
 function encodeOAuthState(payload: object): string {
   const secret = process.env.ACCESS_TOKEN_SECRET;
   if (!secret) throw new Error("Missing ACCESS_TOKEN_SECRET");
-  console.log(payload);
-  return jwt.sign(payload, secret);
+  return jwt.sign(payload, secret, { expiresIn: "5m" });
 }
 
 function decodeOAuthState(token: string): any {
@@ -60,8 +55,8 @@ export function authorizationServerMetadata(_req: Request, res: Response) {
   const base = getBaseUrl();
   res.json({
     issuer: base,
-    authorization_endpoint: `${base}/authorize`,
-    token_endpoint: `${base}/token`,
+    authorization_endpoint: `${base}/mcp/authorize`,
+    token_endpoint: `${base}/mcp/token`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     code_challenge_methods_supported: ["S256"],
@@ -86,14 +81,8 @@ function getStaticClient(
 
 // ─── Authorization Endpoint ───────────────────────────────────────────────────
 
-/**
- * GET /authorize
- *
- * Validates the OAuth parameters and renders either:
- * - The login form (step 1) if no credentials are provided
- * - The consent screen (step 2) after successful login
- */
 export async function authorize(req: Request, res: Response) {
+  console.log("authorize");
   const {
     response_type,
     client_id,
@@ -105,7 +94,6 @@ export async function authorize(req: Request, res: Response) {
     resource,
   } = req.query as Record<string, string>;
 
-  // Validate required parameters before rendering anything
   if (response_type !== "code") {
     return res
       .status(HTTP_STATUS.BAD_REQUEST)
@@ -126,7 +114,6 @@ export async function authorize(req: Request, res: Response) {
       .send("invalid_request: only S256 code_challenge_method is supported");
   }
 
-  // Validate client exists and redirect_uri is registered
   const client = getStaticClient(client_id);
   if (!client) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send("invalid_client");
@@ -137,34 +124,29 @@ export async function authorize(req: Request, res: Response) {
       .send("invalid_redirect_uri: not registered for this client");
   }
 
-  // Everything is valid — render the login form
-  res.send(
-    renderLoginPage({
-      clientName: client.clientName,
-      scope,
-      // Pass OAuth params as hidden fields so the login POST can forward them
-      oauthState: encodeOAuthState({
-        client_id,
-        redirect_uri,
-        code_challenge,
-        code_challenge_method,
+  try {
+    res.send(
+      renderLoginPage({
+        clientName: client.clientName,
         scope,
-        state,
-        resource,
+        oauthState: encodeOAuthState({
+          client_id,
+          redirect_uri,
+          code_challenge,
+          code_challenge_method,
+          scope,
+          state,
+          resource,
+        }),
       }),
-    }),
-  );
+    );
+  } catch (error) {
+    return handleError(res, req, error);
+  }
 }
 
 // ─── Login Form Submission ────────────────────────────────────────────────────
 
-/**
- * POST /authorize/login
- *
- * Authenticates the user with email/password.
- * On success: renders the consent screen.
- * On failure: re-renders the login form with an error message.
- */
 export async function authorizeLogin(req: Request, res: Response) {
   const { email, password, oauth_state } = req.body;
 
@@ -178,50 +160,54 @@ export async function authorizeLogin(req: Request, res: Response) {
   }
 
   try {
-    console.log(email, password);
     const user = await OAuthService.authenticateUser(email, password);
-    console.log(user);
-
-    // User is authenticated — render consent screen
     const client = getStaticClient(oauthParams.client_id);
     const clientName = client?.clientName || oauthParams.client_id;
-
-    console.log("here");
-    // New short-lived token that now includes the authenticated user ID
+    const {
+      client_id,
+      redirect_uri,
+      code_challenge,
+      code_challenge_method,
+      scope,
+      state,
+      resource,
+    } = oauthParams;
     const consentState = encodeOAuthState({
-      ...oauthParams,
+      client_id,
+      redirect_uri,
+      code_challenge,
+      code_challenge_method,
+      scope,
+      state,
+      resource,
       user_id: user._id.toString(),
     });
-
-    console.log("consentState");
 
     res.send(
       renderConsentPage({ clientName, scope: oauthParams.scope, consentState }),
     );
   } catch (err) {
-    console.log(err);
-    // Re-render login with error — decode client name if possible
-    const client = getStaticClient(oauthParams.client_id);
-    res.status(HTTP_STATUS.UNAUTHORIZED).send(
-      renderLoginPage({
-        clientName: client?.clientName || oauthParams.client_id,
-        scope: oauthParams.scope,
-        oauthState: oauth_state,
-        error: "Invalid email or password. Please try again.",
-      }),
-    );
+    // Wrong credentials → re-render login with error message
+    if (
+      err instanceof CustomError &&
+      err.statusCode === HTTP_STATUS.UNAUTHORIZED
+    ) {
+      const client = getStaticClient(oauthParams.client_id);
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(
+        renderLoginPage({
+          clientName: client?.clientName || oauthParams.client_id,
+          scope: oauthParams.scope,
+          oauthState: oauth_state,
+          error: "Invalid email or password. Please try again.",
+        }),
+      );
+    }
+    return handleError(res, req, err);
   }
 }
 
 // ─── Consent Form Submission ──────────────────────────────────────────────────
 
-/**
- * POST /authorize/consent
- *
- * User grants or denies access.
- * On grant: creates an authorization code and redirects to redirect_uri.
- * On deny: redirects with error=access_denied.
- */
 export async function authorizeConsent(req: Request, res: Response) {
   const { consent_state, action } = req.body;
 
@@ -267,22 +253,19 @@ export async function authorizeConsent(req: Request, res: Response) {
     if (state) callbackUrl.searchParams.set("state", state);
 
     return res.redirect(callbackUrl.toString());
-  } catch {
-    return res.redirect(
-      buildErrorRedirect(redirect_uri, "server_error", state),
-    );
+  } catch (err) {
+    // Known errors → redirect with OAuth error code (spec-compliant for browser flow)
+    if (err instanceof CustomError) {
+      return res.redirect(
+        buildErrorRedirect(redirect_uri, "server_error", state),
+      );
+    }
+    return handleError(res, req, err);
   }
 }
 
 // ─── Token Endpoint ───────────────────────────────────────────────────────────
 
-/**
- * POST /token
- *
- * Handles:
- * - grant_type=authorization_code (initial token exchange)
- * - grant_type=refresh_token (token refresh with rotation)
- */
 export async function token(req: Request, res: Response) {
   const { grant_type, client_id } = req.body;
 
@@ -338,11 +321,14 @@ export async function token(req: Request, res: Response) {
       error: "unsupported_grant_type",
     });
   } catch (err: any) {
-    console.log(err);
-    return res.status(err.statusCode || HTTP_STATUS.BAD_REQUEST).json({
-      error: "invalid_grant",
-      error_description: err.message,
-    });
+    // Known OAuth errors → keep spec-compliant format (MCP clients parse this)
+    if (err instanceof CustomError) {
+      return res.status(err.statusCode).json({
+        error: "invalid_grant",
+        error_description: err.message,
+      });
+    }
+    return handleError(res, req, err);
   }
 }
 
@@ -450,7 +436,7 @@ function renderLoginPage(opts: LoginPageOptions): string {
       ${escapeHtml(scopeLabel)}
     </div>
     ${errorHtml}
-    <form method="POST" action="/authorize/login">
+    <form method="POST" action="/mcp/authorize/login">
       <input type="hidden" name="oauth_state" value="${escapeHtml(opts.oauthState)}" />
       <label for="email">Email</label>
       <input type="email" id="email" name="email" required autocomplete="email" />
@@ -547,7 +533,7 @@ function renderConsentPage(opts: ConsentPageOptions): string {
       <h2>This app will be able to:</h2>
       <div class="permission-item">${escapeHtml(scopeLabel)}</div>
     </div>
-    <form method="POST" action="/authorize/consent">
+    <form method="POST" action="/mcp/authorize/consent">
       <input type="hidden" name="consent_state" value="${escapeHtml(opts.consentState)}" />
       <div class="actions">
         <button type="submit" name="action" value="deny" class="btn btn-deny">Deny</button>
