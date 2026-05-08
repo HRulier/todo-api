@@ -1,5 +1,5 @@
 # Base
-FROM node:lts-alpine AS base
+FROM node:22-alpine AS base
 
 WORKDIR /app
 COPY package*.json ./
@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # Production
-FROM node:lts-alpine AS production
+FROM node:22-alpine AS production
 ENV NODE_ENV='production'
 
 RUN addgroup --system --gid 1001 nodejs
