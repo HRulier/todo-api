@@ -10,7 +10,7 @@ if (process.env.DOCKER !== "true" && process.env.NODE_ENV === "production") {
   envConfig.path = "./.env.production";
 }
 
-if (process.env.NODE_ENV === "test") {
+if (process.env.DOCKER !== "true" && process.env.NODE_ENV === "test") {
   envConfig.path = "./.env.test";
 }
 
