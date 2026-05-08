@@ -7,9 +7,9 @@
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "cross-env NODE_ENV=production tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/src/index.js",
-    "test": "jest --detectOpenHandles",
-    "test:watch": "jest --watchAll --detectOpenHandles --forceExit",
-    "test:coverage": "jest --coverage"
+    "test": "cross-env NODE_ENV=test jest --detectOpenHandles",
+    "test:watch": "cross-env NODE_ENV=test jest --watchAll --detectOpenHandles --forceExit",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage"
   },
   "repository": {
     "type": "git",
