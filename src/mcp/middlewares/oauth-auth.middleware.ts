@@ -16,47 +16,68 @@ dotenv.config(configDotenv);
 export function authenticateOAuthToken(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
     const base = process.env.MCP_BASE_URL || "http://localhost:1700";
-    return res
+    res
       .status(HTTP_STATUS.UNAUTHORIZED)
       .set(
         "WWW-Authenticate",
-        `Bearer resource_metadata="${base}/.well-known/oauth-protected-resource"`
+        `Bearer resource_metadata="${base}/.well-known/oauth-protected-resource"`,
       )
       .json({
         error: "unauthorized",
         error_description: "Bearer token required",
       });
+    return;
   }
 
   const token = authHeader.slice("Bearer ".length);
   const secret = process.env.ACCESS_TOKEN_SECRET;
   if (!secret) {
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: "server_error" });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "server_error" });
+    return;
   }
 
   let decoded: any;
   try {
     decoded = jwt.verify(token, secret);
   } catch {
-    return res
+    res
       .status(HTTP_STATUS.UNAUTHORIZED)
-      .json({ error: "invalid_token", error_description: "Token is invalid or expired" });
+      .json({
+        error: "invalid_token",
+        error_description: "Token is invalid or expired",
+      });
+    return;
   }
 
   if (!decoded.scope || !decoded.resource || !decoded.data?._id) {
-    return res
+    res
       .status(HTTP_STATUS.UNAUTHORIZED)
-      .json({ error: "invalid_token", error_description: "Token is not an MCP token" });
+      .json({
+        error: "invalid_token",
+        error_description: "Token is not an MCP token",
+      });
+    return;
   }
 
   (req as any).oauthUserId = decoded.data._id;
   (req as any).oauthScope = decoded.scope;
+
+  // Set req.auth — StreamableHTTPServerTransport forwards this as extra.authInfo in tool handlers.
+  // userId lives in extra so it flows through as extra.authInfo.extra.userId.
+  (req as any).auth = {
+    token,
+    clientId: process.env.MCP_CLIENT_ID ?? "",
+    scopes: decoded.scope ? (decoded.scope as string).split(" ") : [],
+    extra: { userId: decoded.data._id as string },
+  };
 
   next();
 }

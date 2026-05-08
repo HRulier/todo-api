@@ -14,8 +14,7 @@ export interface IOAuthAuthorizationCode {
 }
 
 export interface OAuthAuthorizationCodeDocument
-  extends IOAuthAuthorizationCode,
-    mongoose.Document {}
+  extends IOAuthAuthorizationCode, mongoose.Document {}
 
 const OAuthAuthorizationCodeSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
@@ -35,5 +34,5 @@ OAuthAuthorizationCodeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.model<OAuthAuthorizationCodeDocument>(
   "OAuthAuthorizationCode",
-  OAuthAuthorizationCodeSchema
+  OAuthAuthorizationCodeSchema,
 );
