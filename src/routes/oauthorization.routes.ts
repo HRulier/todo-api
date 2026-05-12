@@ -15,19 +15,19 @@ router.get(
   OAuthController.authorizationServerMetadata,
 );
 
-// ── Authorization flow ─────────────────────────────────────────────────────
-router.get("/mcp/authorize", OAuthController.authorize as RequestHandler);
+router.get("/authorize", OAuthController.authorize as RequestHandler);
 router.post(
-  "/mcp/authorize/login",
+  "/authorize/login",
   OAuthController.authorizeLogin as RequestHandler,
 );
 router.post(
-  "/mcp/authorize/consent",
+  "/authorize/consent",
   OAuthController.authorizeConsent as RequestHandler,
 );
 
-// ── Token endpoint ─────────────────────────────────────────────────────────
-// Must use application/x-www-form-urlencoded (handled by express.urlencoded)
-router.post("/mcp/token", OAuthController.token as unknown as RequestHandler);
+router.post(
+  "/authorize/token",
+  OAuthController.token as unknown as RequestHandler,
+);
 
 export default router;

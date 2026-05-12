@@ -55,8 +55,8 @@ export function authorizationServerMetadata(_req: Request, res: Response) {
   const base = getBaseUrl();
   res.json({
     issuer: base,
-    authorization_endpoint: `${base}/mcp/authorize`,
-    token_endpoint: `${base}/mcp/token`,
+    authorization_endpoint: `${base}/authorize`,
+    token_endpoint: `${base}/authorize/token`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     code_challenge_methods_supported: ["S256"],
@@ -82,7 +82,6 @@ function getStaticClient(
 // ─── Authorization Endpoint ───────────────────────────────────────────────────
 
 export async function authorize(req: Request, res: Response) {
-  console.log("authorize");
   const {
     response_type,
     client_id,
@@ -436,7 +435,7 @@ function renderLoginPage(opts: LoginPageOptions): string {
       ${escapeHtml(scopeLabel)}
     </div>
     ${errorHtml}
-    <form method="POST" action="/mcp/authorize/login">
+    <form method="POST" action="/authorize/login">
       <input type="hidden" name="oauth_state" value="${escapeHtml(opts.oauthState)}" />
       <label for="email">Email</label>
       <input type="email" id="email" name="email" required autocomplete="email" />
@@ -533,7 +532,7 @@ function renderConsentPage(opts: ConsentPageOptions): string {
       <h2>This app will be able to:</h2>
       <div class="permission-item">${escapeHtml(scopeLabel)}</div>
     </div>
-    <form method="POST" action="/mcp/authorize/consent">
+    <form method="POST" action="/authorize/consent">
       <input type="hidden" name="consent_state" value="${escapeHtml(opts.consentState)}" />
       <div class="actions">
         <button type="submit" name="action" value="deny" class="btn btn-deny">Deny</button>

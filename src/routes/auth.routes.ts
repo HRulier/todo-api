@@ -16,7 +16,7 @@ const authRoutes = Router();
 authRoutes.post(
   "/register",
   validateRequest({ body: RegisterUserSchema }),
-  AuthController.register
+  AuthController.register,
 );
 
 authRoutes.post(
@@ -25,7 +25,7 @@ authRoutes.post(
     body: z.object({ email: z.string().email(), password: z.string() }),
   }),
   requireLogin,
-  AuthController.login
+  AuthController.login,
 );
 
 //Google OAuth2 endpoints
@@ -43,7 +43,7 @@ authRoutes.post(
   validateRequest({
     cookies: z.object({ refreshToken: z.string() }),
   }),
-  AuthController.refresh
+  AuthController.refresh,
 );
 
 authRoutes.get(
@@ -51,19 +51,19 @@ authRoutes.get(
   validateRequest({
     cookies: z.object({ refreshToken: z.string() }),
   }),
-  AuthController.logout
+  AuthController.logout,
 );
 
 authRoutes.post(
   "/forgot-password",
   validateRequest({ body: z.object({ email: z.string().email() }) }),
-  AuthController.forgotPassword
+  AuthController.forgotPassword,
 );
 
 authRoutes.post(
   "/reset-password/:token",
   validateRequest({ body: z.object({ password: z.string() }) }),
-  AuthController.resetPassword
+  AuthController.resetPassword,
 );
 
 authRoutes.get(
@@ -71,7 +71,7 @@ authRoutes.get(
   validateRequest({
     params: z.object({ token: z.string() }),
   }),
-  AuthController.resetPasswordRedirect
+  AuthController.resetPasswordRedirect,
 );
 
 authRoutes.post(
@@ -80,7 +80,7 @@ authRoutes.post(
   validateRequest({
     body: z.object({ currentPassword: z.string(), newPassword: z.string() }),
   }),
-  AuthController.changePassword
+  AuthController.changePassword,
 );
 
 authRoutes.get(
@@ -88,13 +88,13 @@ authRoutes.get(
   validateRequest({
     params: z.object({ token: z.string() }),
   }),
-  AuthController.verifiedUserEmail
+  AuthController.verifiedUserEmail,
 );
 
 authRoutes.post(
   "/resend-verification-email",
   validateRequest({ body: z.object({ email: z.string().email() }) }),
-  AuthController.resendVerificationEmail
+  AuthController.resendVerificationEmail,
 );
 
 authRoutes.get("/profile", requireAuth, AuthController.getProfile);
@@ -103,7 +103,7 @@ authRoutes.put(
   "/profile",
   validateRequest({ body: UpdateUserProfileSchema }),
   requireAuth,
-  AuthController.updateProfile
+  AuthController.updateProfile,
 );
 
 authRoutes.get(
@@ -112,7 +112,7 @@ authRoutes.get(
     params: SlackIdSchema,
   }),
   verifyApiKey,
-  AuthController.getUserIdFromSlackId
+  AuthController.getUserIdFromSlackId,
 );
 
 authRoutes.delete("/account", requireAuth, AuthController.deleteUser);
