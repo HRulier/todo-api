@@ -7,7 +7,7 @@ const jobsRoutes = Router();
 jobsRoutes.get(
   "/send-daily-emails",
   verifyApiKey,
-  JobController.sendDailyEmail
+  JobController.sendDailyEmail,
 );
 
 export default jobsRoutes;

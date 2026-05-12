@@ -4,7 +4,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { authenticateOAuthToken } from "~/middlewares/oauth-auth.middleware";
 import { createMcpServer } from "~/mcp/server";
 
-const router = Router();
+const mcpRouter = Router();
 
 // One server instance shared across all sessions — tools registered once
 const mcpServer = createMcpServer();
@@ -52,9 +52,9 @@ async function mcpHandler(req: Request, res: Response) {
   });
 }
 
-router.post("/mcp", authenticateOAuthToken, mcpHandler);
-router.get("/mcp", authenticateOAuthToken, mcpHandler);
-router.delete("/mcp", authenticateOAuthToken, async (req, res) => {
+mcpRouter.post("/", authenticateOAuthToken, mcpHandler);
+mcpRouter.get("/", authenticateOAuthToken, mcpHandler);
+mcpRouter.delete("/", authenticateOAuthToken, async (req, res) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   if (sessionId && transports.has(sessionId)) {
     await transports.get(sessionId)!.close();
@@ -63,4 +63,4 @@ router.delete("/mcp", authenticateOAuthToken, async (req, res) => {
   res.status(204).end();
 });
 
-export default router;
+export default mcpRouter;
