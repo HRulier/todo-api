@@ -13,8 +13,8 @@ import TasksRoutes from "./task.routes";
 import TagsRoutes from "./tag.routes";
 import JobsRoutes from "./job.routes";
 import OperationRoutes from "./operation.routes";
-import OAuthRoutes from "~/mcp/oauth/routes/oauth.routes";
-import McpRoutes from "~/mcp/routes/mcp.routes";
+import OAuthRoutes from "./oauthorization.routes";
+// import McpRoutes from "~/mcp/routes/mcp.routes";
 
 import { createOpenApiDocument } from "~/openapi";
 dotenv.config(dotEnvConfig);
@@ -28,7 +28,7 @@ export default function (app: Application) {
   // Well-known discovery + authorize + token + register endpoints must be
   // accessible at the root so MCP clients can find them via RFC 8414/9728.
   app.use("/", OAuthRoutes);
-  app.use("/", McpRoutes);
+  // app.use("/", McpRoutes);
 
   // Initializing route groups
   const apiRoutes = Router();

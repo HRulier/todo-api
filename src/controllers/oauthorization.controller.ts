@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import dotEnvConfig from "~/config/dot-env";
 import HTTP_STATUS from "~/utils/http_status";
 import { handleError, CustomError } from "~/utils/errors";
-import * as OAuthService from "../services/oauth.service";
+import * as OAuthService from "../services/oauthorization.service";
 
 dotenv.config(dotEnvConfig);
 

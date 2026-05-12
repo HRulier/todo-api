@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp";
-import { authenticateOAuthToken } from "~/mcp/middlewares/oauth-auth.middleware";
+import { authenticateOAuthToken } from "~/middlewares/oauth-auth.middleware";
 import { createMcpServer } from "~/mcp/server";
 
 const router = Router();

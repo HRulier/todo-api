@@ -20,7 +20,7 @@ dotenv.config(configDotenv);
  */
 export function verifySHA256Challenge(
   verifier: string,
-  challenge: string
+  challenge: string,
 ): boolean {
   const computed = crypto
     .createHash("sha256")
@@ -30,7 +30,7 @@ export function verifySHA256Challenge(
   try {
     return crypto.timingSafeEqual(
       Buffer.from(computed),
-      Buffer.from(challenge)
+      Buffer.from(challenge),
     );
   } catch {
     return false;
@@ -99,18 +99,21 @@ export async function exchangeCodeForTokens(data: {
   });
 
   if (!authCode) {
-    throw new CustomError("Invalid authorization code", HTTP_STATUS.BAD_REQUEST);
+    throw new CustomError(
+      "Invalid authorization code",
+      HTTP_STATUS.BAD_REQUEST,
+    );
   }
   if (authCode.used) {
     throw new CustomError(
       "Authorization code already used",
-      HTTP_STATUS.BAD_REQUEST
+      HTTP_STATUS.BAD_REQUEST,
     );
   }
   if (authCode.expiresAt < new Date()) {
     throw new CustomError(
       "Authorization code expired",
-      HTTP_STATUS.BAD_REQUEST
+      HTTP_STATUS.BAD_REQUEST,
     );
   }
   if (authCode.redirectUri !== data.redirectUri) {
@@ -124,7 +127,7 @@ export async function exchangeCodeForTokens(data: {
   if (!verifySHA256Challenge(data.codeVerifier, authCode.codeChallenge)) {
     throw new CustomError(
       "Invalid PKCE code_verifier",
-      HTTP_STATUS.BAD_REQUEST
+      HTTP_STATUS.BAD_REQUEST,
     );
   }
 
@@ -132,7 +135,11 @@ export async function exchangeCodeForTokens(data: {
   authCode.used = true;
   await authCode.save();
 
-  return createJwtTokenPair(authCode.userId.toString(), authCode.scope, authCode.resource);
+  return createJwtTokenPair(
+    authCode.userId.toString(),
+    authCode.scope,
+    authCode.resource,
+  );
 }
 
 // ─── Refresh Token ────────────────────────────────────────────────────────────
@@ -169,15 +176,26 @@ export async function refreshAccessToken(data: {
     // Replay detected — invalidate all refresh tokens for this user
     user.mcpRefreshTokenJti = null;
     await user.save();
-    throw new CustomError("Refresh token already used", HTTP_STATUS.UNAUTHORIZED);
+    throw new CustomError(
+      "Refresh token already used",
+      HTTP_STATUS.UNAUTHORIZED,
+    );
   }
 
-  return createJwtTokenPair(user._id.toString(), decoded.scope, decoded.resource);
+  return createJwtTokenPair(
+    user._id.toString(),
+    decoded.scope,
+    decoded.resource,
+  );
 }
 
 // ─── Internal helper ──────────────────────────────────────────────────────────
 
-async function createJwtTokenPair(userId: string, scope: string, resource: string) {
+async function createJwtTokenPair(
+  userId: string,
+  scope: string,
+  resource: string,
+) {
   const user = await User.findById(userId);
   if (!user) {
     throw new CustomError("User not found", HTTP_STATUS.UNAUTHORIZED);
@@ -187,13 +205,13 @@ async function createJwtTokenPair(userId: string, scope: string, resource: strin
   const access_token = generateMcpAccessToken(
     { _id: user._id.toString(), email: user.email },
     scope,
-    resource
+    resource,
   );
   const refresh_token = generateMcpRefreshToken(
     { _id: user._id.toString() },
     scope,
     resource,
-    jti
+    jti,
   );
 
   user.mcpRefreshTokenJti = jti;
