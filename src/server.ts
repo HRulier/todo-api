@@ -36,7 +36,7 @@ app.use(
     ],
     exposedHeaders: ["Mcp-Session-Id"],
     credentials: true,
-  })
+  }),
 );
 
 app.set("trust proxy", 1);

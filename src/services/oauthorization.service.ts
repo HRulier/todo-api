@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
 import OAuthAuthorizationCode from "../models/oauth-authorization-code.model";
+import OAuthClient from "../models/oauth-client.model";
 import User from "~/models/user";
 import { CustomError } from "~/utils/errors";
 import HTTP_STATUS from "~/utils/http_status";
@@ -37,7 +38,53 @@ export function verifySHA256Challenge(
   }
 }
 
-// ─── User Authentication ──────────────────────────────────────────────────────
+export async function registerClient(
+  clientName: string,
+  redirectUris: string[],
+) {
+  try {
+    if (
+      !clientName ||
+      !redirectUris ||
+      (redirectUris && redirectUris.length === 0)
+    ) {
+      throw new CustomError(
+        "Client name and redirect URIs are required",
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
+    // Validate redirect URIs
+    // if one of the redirectUris is invalid, throw an error
+    for (const redirectUri of redirectUris) {
+      new URL(redirectUri);
+    }
+
+    const clientId = crypto.randomUUID();
+
+    const client = new OAuthClient({
+      clientId,
+      clientName,
+      redirectUris,
+      grantTypes: ["authorization_code", "refresh_token"],
+      responseTypes: ["code"],
+      scope: "read:tasks",
+      tokenEndpointAuthMethod: "none",
+      clientIssuedAt: Date.now(),
+      clientSecretExpiresAt: 0,
+    });
+
+    await client.save();
+    return client;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function findClient(clientId: string) {
+  const client = await OAuthClient.findOne({ clientId });
+  return client || null;
+}
 
 export async function authenticateUser(email: string, password: string) {
   const user = await User.findOne({ email }).select("+password");
@@ -52,8 +99,6 @@ export async function authenticateUser(email: string, password: string) {
 
   return user;
 }
-
-// ─── Authorization Code ───────────────────────────────────────────────────────
 
 export async function createAuthorizationCode(data: {
   clientId: string;
@@ -83,8 +128,6 @@ export async function createAuthorizationCode(data: {
   await authCode.save();
   return code;
 }
-
-// ─── Token Exchange ───────────────────────────────────────────────────────────
 
 export async function exchangeCodeForTokens(data: {
   code: string;
@@ -142,8 +185,6 @@ export async function exchangeCodeForTokens(data: {
   );
 }
 
-// ─── Refresh Token ────────────────────────────────────────────────────────────
-
 export async function refreshAccessToken(data: {
   refreshToken: string;
   clientId: string;
@@ -188,8 +229,6 @@ export async function refreshAccessToken(data: {
     decoded.resource,
   );
 }
-
-// ─── Internal helper ──────────────────────────────────────────────────────────
 
 async function createJwtTokenPair(
   userId: string,

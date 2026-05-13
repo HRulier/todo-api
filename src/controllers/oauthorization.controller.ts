@@ -66,19 +66,6 @@ export function authorizationServerMetadata(_req: Request, res: Response) {
   });
 }
 
-// ─── Static Client ────────────────────────────────────────────────────────────
-
-function getStaticClient(
-  clientId: string,
-): { clientName: string; redirectUris: string[] } | null {
-  if (clientId !== process.env.MCP_CLIENT_ID) return null;
-  const uris = (process.env.MCP_REDIRECT_URIS || "")
-    .split(",")
-    .map((u) => u.trim())
-    .filter(Boolean);
-  return { clientName: "Claude.ai", redirectUris: uris };
-}
-
 // ─── Authorization Endpoint ───────────────────────────────────────────────────
 
 export async function authorize(req: Request, res: Response) {
@@ -113,7 +100,7 @@ export async function authorize(req: Request, res: Response) {
       .send("invalid_request: only S256 code_challenge_method is supported");
   }
 
-  const client = getStaticClient(client_id);
+  const client = await OAuthService.findClient(client_id);
   if (!client) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send("invalid_client");
   }
@@ -160,7 +147,12 @@ export async function authorizeLogin(req: Request, res: Response) {
 
   try {
     const user = await OAuthService.authenticateUser(email, password);
-    const client = getStaticClient(oauthParams.client_id);
+    const client = await OAuthService.findClient(oauthParams.client_id);
+
+    if (!client) {
+      throw new CustomError("Invalid client", HTTP_STATUS.BAD_REQUEST);
+    }
+
     const clientName = client?.clientName || oauthParams.client_id;
     const {
       client_id,
@@ -191,7 +183,8 @@ export async function authorizeLogin(req: Request, res: Response) {
       err instanceof CustomError &&
       err.statusCode === HTTP_STATUS.UNAUTHORIZED
     ) {
-      const client = getStaticClient(oauthParams.client_id);
+      const client = await OAuthService.findClient(oauthParams.client_id);
+
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(
         renderLoginPage({
           clientName: client?.clientName || oauthParams.client_id,
@@ -268,7 +261,9 @@ export async function authorizeConsent(req: Request, res: Response) {
 export async function token(req: Request, res: Response) {
   const { grant_type, client_id } = req.body;
 
-  if (!getStaticClient(client_id)) {
+  const client = await OAuthService.findClient(client_id);
+
+  if (!client) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       error: "invalid_client",
       error_description: "Unknown client_id",
