@@ -20,7 +20,7 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
 
       req.user = user; // Attach the user to the request for later use
       next(); // Proceed to the next middleware/controller
-    }
+    },
   )(req, res, next);
 };
 
@@ -46,7 +46,7 @@ const requireAuth = (req: Request, res: Response, next: NextFunction) => {
 
       req.user = user; // Attach the user to the request for later use
       next(); // Proceed to the next middleware/controller
-    }
+    },
   )(req, res, next);
 };
 
